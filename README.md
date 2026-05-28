@@ -2,6 +2,8 @@
 
 A fast static browser game where players burst apples, chase combos, and compete on a Firebase Realtime Database leaderboard.
 
+![Apple Burst start screen screenshot](docs/images/apple-burst-home.png)
+
 ## Highlights
 
 - Single-file HTML game
