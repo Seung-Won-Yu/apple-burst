@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "ranks": {
+      ".read": true,
+      ".indexOn": ["score"],
+      "$playerKey": {
+        ".write": true,
+        ".validate": "newData.hasChildren(['nick', 'score', 'updatedAt']) && newData.child('nick').isString() && newData.child('nick').val().length <= 12 && newData.child('score').isNumber() && newData.child('score').val() > 0 && newData.child('score').val() <= 999999 && newData.child('updatedAt').isNumber() && (!data.exists() || newData.child('score').val() >= data.child('score').val())"
+      }
+    }
+  }
+}
