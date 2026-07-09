@@ -42,7 +42,7 @@
             background-position: 0 0, 0 12px, 12px -12px, -12px 0;
             background-size: 24px 24px;
         }
-        body.fevering { background-color: #fff5c4; }
+        body.fevering { background-color: #fff8d9; }
 
         /* 휴대폰 세로 화면에서는 가로 모드 전환을 안내한다. */
         #rotate-notice {
@@ -83,7 +83,7 @@
             border-radius: 999px; background: rgba(255,255,255,0.36); box-shadow: inset 0 2px 2px rgba(255,255,255,0.35);
             pointer-events: none;
         }
-        #stage-wrap.fevering { filter: saturate(1.15); box-shadow: 0 0 0 5px rgba(255,215,68,0.45), var(--shadow); }
+        #stage-wrap.fevering { filter: saturate(1.08); box-shadow: 0 0 0 3px rgba(255,215,68,0.36), var(--shadow); }
         #stage-wrap.hit { animation: hit-pulse 0.28s ease-out; }
         #stage-wrap.miss { animation: miss-shake 0.18s ease-out; }
         canvas { display: block; border-radius: 3px; cursor: crosshair; width: min(100%, 900px); max-width: 100%; max-height: min(73svh, 620px); height: auto; touch-action: none; box-shadow: inset 0 0 0 2px rgba(0,120,50,0.18), 0 1px 0 rgba(255,255,255,0.45); }
@@ -130,8 +130,18 @@
         input::placeholder { color: rgba(124,102,88,0.58); }
         input:focus { box-shadow: 0 0 0 3px rgba(255,138,28,0.24); border-color: var(--accent); }
         input, button, #rank-container, .overlay { touch-action: manipulation; }
-        .nick-help, .save-state, .result-detail { color: var(--muted); font-size: 12px; min-height: 18px; margin-bottom: 8px; }
+        .nick-help, .result-detail { color: var(--muted); font-size: 12px; min-height: 18px; margin-bottom: 8px; }
         .result-detail { color: var(--ink); }
+        .save-state {
+            display: inline-flex; align-items: center; justify-content: center; min-height: 26px; margin-bottom: 8px;
+            padding: 5px 12px; border-radius: 999px; background: rgba(255,255,255,0.74); border: 1px solid var(--line);
+            color: var(--muted); font-size: 12px; font-weight: 900; box-sizing: border-box;
+        }
+        .save-state:empty { visibility: hidden; }
+        .save-state.local { background: rgba(244,182,58,0.18); border-color: rgba(244,182,58,0.45); color: #8b6412; }
+        .save-state.online { background: rgba(9,201,93,0.14); border-color: rgba(5,169,77,0.45); color: var(--frame-dark); }
+        .save-state.saving { background: rgba(36,119,255,0.12); border-color: rgba(36,119,255,0.42); color: #2254a7; }
+        .save-state.blocked { background: rgba(255,63,31,0.12); border-color: rgba(255,63,31,0.34); color: #b83b20; }
         .challenge-banner { width: min(86%, 430px); margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; background: rgba(244,182,58,0.18); border: 1px solid rgba(244,182,58,0.46); color: var(--ink); font-size: 12px; line-height: 1.45; }
         .challenge-banner strong { color: var(--gold); }
         .result-card { width: min(88%, 460px); padding: 18px; border-radius: 14px; background: #fff; border: 2px solid var(--line); box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); margin-bottom: 12px; }
@@ -164,8 +174,9 @@
         #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 18px); z-index: 10000; min-width: min(88vw, 320px); max-width: 90vw; padding: 12px 16px; border-radius: 999px; background: rgba(47, 157, 103, 0.94); color: #fff; font-size: 13px; font-weight: 900; text-align: center; opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s; box-shadow: 0 14px 34px rgba(34,104,67,0.22); }
         #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-        #fever-bar { width: min(90%, 850px); height: 7px; background: rgba(255,255,255,0.7); border: 1px solid var(--line); border-radius: 999px; margin-top: 20px; overflow: hidden; }
-        #fever-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #ff3f1f, #ffd744, #09c95d); transition: width 0.3s; }
+        #fever-bar { position: relative; width: min(90%, 850px); height: 8px; background: rgba(255,255,255,0.72); border: 1px solid var(--line); border-radius: 999px; margin-top: 20px; overflow: hidden; }
+        #fever-bar.fever-ready { border-color: rgba(244,182,58,0.72); box-shadow: 0 0 0 3px rgba(244,182,58,0.14); }
+        #fever-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #38d976, #ffd744); transition: width 0.3s; }
         @media (min-width: 1100px) and (pointer: fine) {
             body { align-items: center; }
             #game-container { width: min(94vw, 1000px); padding: 16px 0; }
@@ -322,7 +333,7 @@
         </div>
     </div>
 
-    <div id="fever-bar"><div id="fever-fill"></div></div>
+    <div id="fever-bar" aria-label="피버 게이지"><div id="fever-fill"></div></div>
 </div>
 <div id="toast"></div>
 
@@ -342,6 +353,8 @@ const db = (() => {
 const ROWS = 10, COLS = 17, CELL = 52, PAD = 25, DEFAULT_TIME = 120, MAX_NICK = 12, LOW_APPLE_LIMIT = 18;
 const DEFAULT_NICK = "플레이어";
 const MAX_RANK_SCORE = 999999, SAVE_COOLDOWN_MS = 8000, SCORE_VERSION = 2;
+const TUTORIAL_KEY = `apple_tutorial_seen_v${SCORE_VERSION}`;
+const FEVER_DURATION_MS = 6000;
 const dpr = window.devicePixelRatio || 1;
 
 const Game = {
@@ -349,10 +362,11 @@ const Game = {
     ctx: document.getElementById('stage').getContext('2d'),
     active: false, dragging: false,
     score: 0, time: DEFAULT_TIME, mode: "classic", modeTime: DEFAULT_TIME,
-    fever: 0, cleared: 0, reshuffles: 0,
+    fever: 0, feverUntil: 0, cleared: 0, reshuffles: 0,
     playStartedAt: 0, scoreSaved: false,
     nick: DEFAULT_NICK, playerKey: "player", latestRanks: [], rankMode: "all", rankFallbackActive: false, composingNick: false,
     grid: [], effects: [], particles: [],
+    tutorialHint: null, audioCtx: null, audioEnabled: false,
     toastTimer: null,
     pointerType: "mouse",
     mStart: {x:0, y:0}, mCurrent: {x:0, y:0},
@@ -405,6 +419,7 @@ const Game = {
         this.canvas.addEventListener('pointerdown', (e) => {
             if(!this.active) return;
             e.preventDefault();
+            this.clearTutorialHint();
             this.dragging = true;
             this.pointerType = e.pointerType || "mouse";
             this.canvas.setPointerCapture?.(e.pointerId);
@@ -510,6 +525,13 @@ const Game = {
 
     setNickHelp(message) {
         document.getElementById('nick-help').innerText = message;
+    },
+
+    setSaveState(message, tone = "") {
+        const state = document.getElementById('save-state');
+        if(!state) return;
+        state.className = `save-state ${tone}`.trim();
+        state.innerText = message;
     },
 
     loadChallenge() {
@@ -623,6 +645,38 @@ const Game = {
         if(type === "miss") navigator.vibrate([8]);
     },
 
+    primeAudio() {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if(!AudioContext) return;
+        if(!this.audioCtx) this.audioCtx = new AudioContext();
+        if(this.audioCtx.state === "suspended") this.audioCtx.resume().catch(() => {});
+        this.audioEnabled = true;
+    },
+
+    playSound(type) {
+        if(!this.audioEnabled || !this.audioCtx || this.audioCtx.state !== "running") return;
+        const ctx = this.audioCtx;
+        const now = ctx.currentTime;
+        const gain = ctx.createGain();
+        const osc = ctx.createOscillator();
+        const toneMap = {
+            hit: { from: 520, to: 760, duration: 0.11, volume: 0.04, wave: "triangle" },
+            miss: { from: 180, to: 120, duration: 0.12, volume: 0.028, wave: "sine" },
+            fever: { from: 660, to: 990, duration: 0.18, volume: 0.045, wave: "triangle" },
+        };
+        const tone = toneMap[type] || toneMap.hit;
+        osc.type = tone.wave;
+        osc.frequency.setValueAtTime(tone.from, now);
+        osc.frequency.exponentialRampToValueAtTime(tone.to, now + tone.duration);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(tone.volume, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + tone.duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + tone.duration + 0.02);
+    },
+
     makeApple() {
         return { val: Math.floor(Math.random() * 9) + 1, scale: 0, removed: false };
     },
@@ -649,8 +703,8 @@ const Game = {
         return count;
     },
 
-    hasAnyTen() {
-        if(!this.grid.length) return false;
+    findTenSelection() {
+        if(!this.grid.length) return null;
         const sums = Array.from({length: ROWS + 1}, () => Array(COLS + 1).fill(0));
         for(let r = 0; r < ROWS; r++) {
             for(let c = 0; c < COLS; c++) {
@@ -664,12 +718,60 @@ const Game = {
                 for(let r2 = r1; r2 < ROWS; r2++) {
                     for(let c2 = c1; c2 < COLS; c2++) {
                         const sum = sums[r2 + 1][c2 + 1] - sums[r1][c2 + 1] - sums[r2 + 1][c1] + sums[r1][c1];
-                        if(sum === 10) return true;
+                        if(sum === 10) {
+                            const items = [];
+                            for(let r = r1; r <= r2; r++) {
+                                for(let c = c1; c <= c2; c++) {
+                                    if(this.grid[r]?.[c] && !this.grid[r][c].removed) items.push({r, c});
+                                }
+                            }
+                            return {
+                                items,
+                                rect: {
+                                    x: PAD + c1 * CELL,
+                                    y: PAD + r1 * CELL,
+                                    w: (c2 - c1 + 1) * CELL,
+                                    h: (r2 - r1 + 1) * CELL,
+                                },
+                                center: {
+                                    x: PAD + (c1 + c2 + 1) * CELL / 2,
+                                    y: PAD + (r1 + r2 + 1) * CELL / 2,
+                                },
+                            };
+                        }
                     }
                 }
             }
         }
-        return false;
+        return null;
+    },
+
+    hasAnyTen() {
+        return !!this.findTenSelection();
+    },
+
+    maybeShowTutorialHint() {
+        if(localStorage.getItem(TUTORIAL_KEY) === "1") {
+            this.tutorialHint = null;
+            return;
+        }
+        const hint = this.findTenSelection();
+        if(!hint) return;
+        this.tutorialHint = { ...hint, startedAt: performance.now(), duration: 3000 };
+        localStorage.setItem(TUTORIAL_KEY, "1");
+    },
+
+    clearTutorialHint() {
+        this.tutorialHint = null;
+    },
+
+    isFeverActive(now = performance.now()) {
+        return this.feverUntil > now;
+    },
+
+    activateFever(now = performance.now()) {
+        this.feverUntil = now + FEVER_DURATION_MS;
+        this.fever = 100;
     },
 
     refreshBoard(message) {
@@ -813,6 +915,7 @@ const Game = {
     },
 
     start() {
+        this.primeAudio();
         this.enterFullscreen();
         const nickInput = document.getElementById('nick-input');
         this.nick = this.cleanNick(nickInput.value) || DEFAULT_NICK;
@@ -820,11 +923,12 @@ const Game = {
         nickInput.value = this.nick === DEFAULT_NICK ? "" : this.nick;
         localStorage.setItem('apple_nick', this.nick);
         this.buildPlayableBoard();
-        this.score = 0; this.time = this.modeTime; this.fever = 0; this.cleared = 0; this.reshuffles = 0; this.effects = []; this.particles = []; this.active = true;
+        this.score = 0; this.time = this.modeTime; this.fever = 0; this.feverUntil = 0; this.cleared = 0; this.reshuffles = 0; this.effects = []; this.particles = []; this.active = true;
+        this.maybeShowTutorialHint();
         this.playStartedAt = Date.now();
         this.scoreSaved = false;
         this.setNickHelp("");
-        document.getElementById('save-state').innerText = "";
+        this.setSaveState("");
         document.getElementById('screen-start').classList.add('hidden');
         document.getElementById('screen-result').classList.add('hidden');
         this.updateHud();
@@ -839,6 +943,7 @@ const Game = {
 
     end() {
         this.active = false; clearInterval(this.timer);
+        this.fever = 0; this.feverUntil = 0;
         const myBest = this.getLocalBest();
         const isNewBest = this.validateRankSave() === "OK" && this.score > myBest;
         if(isNewBest) this.setLocalBest(this.score);
@@ -855,9 +960,8 @@ const Game = {
     },
 
     saveScore() {
-        const state = document.getElementById('save-state');
         if(this.scoreSaved) {
-            state.innerText = "랭킹 확인 완료";
+            this.setSaveState("랭킹 확인 완료", "online");
             return;
         }
         this.scoreSaved = true;
@@ -870,13 +974,15 @@ const Game = {
                 COOLDOWN: ["잠깐 쉬었다 저장", "너무 잦은 저장은 잠시 막아요"],
             };
             const [label, toast] = messages[saveStatus] || messages.BAD_SCORE;
-            state.innerText = label;
+            this.setSaveState(label, "blocked");
             this.showToast(toast);
             return;
         }
         if(!db) {
-            state.innerText = "내 기기 최고점 저장 완료";
-            this.showToast("로컬 최고점 저장 완료");
+            const best = this.getLocalBest();
+            const message = this.score >= best ? "기기 최고점 저장 완료" : "기기 최고점 유지";
+            this.setSaveState(message, "local");
+            this.showToast(message);
             return;
         }
         const payload = {
@@ -886,18 +992,18 @@ const Game = {
             updatedAt: firebase.database.ServerValue.TIMESTAMP,
         };
         localStorage.setItem(this.getSaveCooldownKey(), Date.now());
-        state.innerText = "랭킹 저장 중...";
+        this.setSaveState("온라인 랭킹 저장 중...", "saving");
         db.ref(`ranks/${this.getRankKey()}`).transaction((current) => {
             if(current && Number(current.score) >= payload.score) return;
             return payload;
         }, (error, committed) => {
             if(error) {
                 console.warn(error);
-                state.innerText = "랭킹 저장 실패";
+                this.setSaveState("온라인 랭킹 저장 실패", "blocked");
                 this.showToast("랭킹 저장 실패");
                 return;
             }
-            state.innerText = committed ? "랭킹 최고점 저장 완료" : "기존 최고점 유지";
+            this.setSaveState(committed ? "온라인 최고점 저장 완료" : "온라인 최고점 유지", committed ? "online" : "local");
             this.showToast(committed ? `${this.getModeLabel()} 랭킹 저장 완료` : `${this.getModeLabel()} 기존 최고점이 더 높아요`);
         });
     },
@@ -921,24 +1027,32 @@ const Game = {
     check() {
         const sel = this.getSel();
         if(sel.sum === 10 && sel.items.length) {
-            const feverOn = this.fever >= 100;
+            const now = performance.now();
+            const feverOn = this.isFeverActive(now);
             const feverBefore = this.fever;
             const points = sel.items.length * 10 * (feverOn ? 3 : 1);
             this.score += points;
             this.cleared += sel.items.length;
-            this.fever = Math.min(100, this.fever + 12);
+            if(!feverOn) this.fever = Math.min(100, this.fever + 12);
             sel.items.forEach(p => this.grid[p.r][p.c].removed = true);
             this.spawnEffect(feverOn ? `+${points} x3` : `+${points}`, sel.center.x, sel.center.y, feverOn ? '#f4b63a' : '#2477ff');
-            if(feverBefore < 100 && this.fever >= 100) this.spawnEffect("피버 준비", sel.center.x, sel.center.y - 66, '#f4b63a');
+            if(!feverOn && feverBefore < 100 && this.fever >= 100) {
+                this.activateFever(now);
+                this.spawnEffect("피버 준비", sel.center.x, sel.center.y - 66, '#f4b63a');
+                this.playSound("fever");
+            } else {
+                this.playSound("hit");
+            }
             this.spawnBurst(sel.center.x, sel.center.y, feverOn);
             this.flashBoard('hit');
             this.haptic("hit");
             setTimeout(() => this.ensureBoard(), 320);
         } else {
-            this.fever = Math.max(0, this.fever - 5);
+            if(!this.isFeverActive()) this.fever = Math.max(0, this.fever - 5);
             if(sel.items.length) {
                 this.flashBoard('miss');
                 this.haptic("miss");
+                this.playSound("miss");
             }
             this.ensureBoard();
         }
@@ -1059,6 +1173,95 @@ const Game = {
         ctx.restore();
     },
 
+    drawRoundRect(ctx, x, y, w, h, radius) {
+        ctx.beginPath();
+        if(ctx.roundRect) {
+            ctx.roundRect(x, y, w, h, radius);
+            return;
+        }
+        const r = Math.min(radius, w / 2, h / 2);
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+    },
+
+    drawTutorialHint(now) {
+        const hint = this.tutorialHint;
+        if(!this.active || !hint) return;
+        const elapsed = now - hint.startedAt;
+        if(elapsed > hint.duration) {
+            this.tutorialHint = null;
+            return;
+        }
+        const fade = elapsed > hint.duration - 650 ? Math.max(0, (hint.duration - elapsed) / 650) : 1;
+        const pulse = 1 + Math.sin(elapsed / 150) * 0.06;
+        const ctx = this.ctx;
+        const x = hint.rect.x - 5;
+        const y = hint.rect.y - 5;
+        const w = hint.rect.w + 10;
+        const h = hint.rect.h + 10;
+        const label = "합계 10";
+
+        ctx.save();
+        ctx.globalAlpha = fade;
+        ctx.fillStyle = 'rgba(255, 215, 68, 0.14)';
+        ctx.strokeStyle = '#ff8a1c';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([8, 6]);
+        this.drawRoundRect(ctx, x, y, w, h, 10);
+        ctx.fill();
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.font = "900 17px Montserrat, 'Noto Sans KR'";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const labelW = ctx.measureText(label).width + 28;
+        const labelX = hint.center.x;
+        const labelY = Math.max(25, y - 18);
+        ctx.translate(labelX, labelY);
+        ctx.scale(pulse, pulse);
+        this.drawRoundRect(ctx, -labelW / 2, -16, labelW, 32, 16);
+        ctx.fillStyle = 'rgba(255, 252, 241, 0.94)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 138, 28, 0.58)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = '#203024';
+        ctx.fillText(label, 0, 1);
+        ctx.restore();
+    },
+
+    drawFeverBadge() {
+        const ctx = this.ctx;
+        const boardW = COLS * CELL + PAD * 2;
+        const x = boardW / 2;
+        const y = 44;
+        const w = 118;
+        const h = 30;
+        ctx.save();
+        ctx.globalAlpha = 0.9;
+        this.drawRoundRect(ctx, x - w / 2, y - h / 2, w, h, 15);
+        ctx.fillStyle = 'rgba(255, 252, 230, 0.92)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(244, 182, 58, 0.72)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = '#c97c09';
+        ctx.font = "900 18px Montserrat, 'Noto Sans KR'";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("피버 x3", x, y + 1);
+        ctx.restore();
+    },
+
     flashBoard(type) {
         const wrap = document.getElementById('stage-wrap');
         wrap.classList.remove(type);
@@ -1103,12 +1306,23 @@ const Game = {
         }
         this.ctx.restore();
 
-        const fevering = this.fever >= 100;
+        const now = performance.now();
+        const fevering = this.isFeverActive(now);
+        if(fevering) {
+            const remaining = Math.max(0, this.feverUntil - now);
+            this.fever = (remaining / FEVER_DURATION_MS) * 100;
+        } else if(this.feverUntil) {
+            this.feverUntil = 0;
+            this.fever = 0;
+        }
         document.body.classList.toggle('fevering', fevering);
         document.getElementById('stage-wrap').classList.toggle('fevering', fevering);
-        if(fevering) this.fever -= 0.15;
-        document.getElementById('fever-fill').style.width = this.fever + "%";
+        document.getElementById('fever-bar').classList.toggle('fever-ready', fevering);
+        document.getElementById('fever-fill').style.width = `${Math.max(0, Math.min(100, this.fever))}%`;
         const selItems = this.dragging ? this.getSel().items : [];
+        const hintItems = this.tutorialHint && now - this.tutorialHint.startedAt <= this.tutorialHint.duration
+            ? this.tutorialHint.items
+            : [];
 
         for(let r=0; r<ROWS; r++) {
             for(let c=0; c<COLS; c++) {
@@ -1119,11 +1333,13 @@ const Game = {
                     this.ctx.save();
                     this.ctx.translate(c*CELL + CELL/2 + PAD, r*CELL + CELL/2 + PAD);
                     this.ctx.scale(a.scale, a.scale);
-                    this.drawApple(a, selItems.some(s=>s.r===r && s.c===c), fevering);
+                    const selected = selItems.some(s=>s.r===r && s.c===c) || hintItems.some(s=>s.r===r && s.c===c);
+                    this.drawApple(a, selected, fevering);
                     this.ctx.restore();
                 }
             }
         }
+        this.drawTutorialHint(now);
         if(this.dragging) {
             const sel = this.getSel();
             this.ctx.strokeStyle = sel.sum === 10 ? '#ff3f1f' : '#1fa84f';
@@ -1161,14 +1377,7 @@ const Game = {
                 }
             }
         }
-        if(fevering) {
-            this.ctx.save();
-            this.ctx.fillStyle = 'rgba(244, 182, 58, 0.24)';
-            this.ctx.font = "900 64px Montserrat, 'Noto Sans KR'";
-            this.ctx.textAlign = "center";
-            this.ctx.fillText("피버 x3", (COLS * CELL + PAD * 2) / 2, 72);
-            this.ctx.restore();
-        }
+        if(fevering) this.drawFeverBadge();
         this.effects = this.effects.filter(effect => effect.life > 0);
         this.effects.forEach((effect) => {
             this.ctx.save();
