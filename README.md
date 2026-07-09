@@ -72,4 +72,4 @@ Realtime Database rules 배포:
 npx firebase-tools deploy --only database --project apple-game-d1038
 ```
 
-랭킹 데이터는 `ranks` 아래에 저장됩니다. 닉네임별 최고점만 갱신되며, 더 낮은 점수로는 기존 기록을 덮어쓰지 않습니다.
+랭킹 데이터는 `ranks` 아래에 저장됩니다. 현재 점수판은 `v2_classic_닉네임`, `v2_rush_닉네임` 키를 사용합니다. 닉네임별 최고점만 갱신되며, 더 낮은 점수로는 기존 기록을 덮어쓰지 않습니다.

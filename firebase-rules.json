@@ -4,13 +4,16 @@
       ".read": true,
       ".indexOn": ["score"],
       "$playerKey": {
-        ".write": "$playerKey.matches(/^(rush|classic)_.{1,90}$/)",
-        ".validate": "newData.hasChildren(['nick', 'score', 'updatedAt']) && (!data.exists() || newData.child('score').val() >= data.child('score').val())",
+        ".write": "$playerKey.matches(/^v2_(rush|classic)_.{1,90}$/)",
+        ".validate": "newData.hasChildren(['nick', 'score', 'version', 'updatedAt']) && (!data.exists() || newData.child('score').val() >= data.child('score').val())",
         "nick": {
           ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 12"
         },
         "score": {
           ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 999999"
+        },
+        "version": {
+          ".validate": "newData.isNumber() && newData.val() == 2"
         },
         "updatedAt": {
           ".validate": "newData.isNumber() && newData.val() >= now - 60000 && newData.val() <= now + 60000"

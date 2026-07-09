@@ -62,13 +62,12 @@
         #game-container { position: relative; display: flex; flex-direction: column; align-items: center; width: min(96vw, 1000px); padding: 12px 0; }
 
         /* UI */
-        #header { width: min(100%, 1000px); display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 12px; margin-bottom: 10px; padding: 0 1px; box-sizing: border-box; }
+        #header { width: min(100%, 1000px); display: grid; grid-template-columns: auto 1fr auto; align-items: end; gap: 12px; margin-bottom: 10px; padding: 0 1px; box-sizing: border-box; }
         .stat { display: flex; flex-direction: column; justify-self: start; width: 132px; min-width: 0; box-sizing: border-box; background: rgba(255,255,255,0.78); border: 1px solid rgba(5,106,42,0.14); border-radius: 6px; padding: 5px 9px; box-shadow: inset 0 -2px 0 rgba(5,106,42,0.08); }
         .stat.center { align-items: center; justify-self: center; }
-        .stat.right { align-items: flex-end; justify-self: end; }
+        .stat.right { grid-column: 3; align-items: flex-end; justify-self: end; }
         .stat-label { font-size: 9px; color: var(--muted); letter-spacing: 0; }
         .stat-value { font-size: clamp(22px, 4vw, 32px); font-weight: 900; line-height: 1; color: var(--ink); }
-        #v-combo { color: var(--accent); }
 
         #stage-wrap {
             --stage-pad-top: 28px;
@@ -257,7 +256,6 @@
 <div id="game-container">
     <div id="header">
         <div class="stat"><div class="stat-label">시간</div><div id="v-time" class="stat-value">120</div></div>
-        <div class="stat center"><div class="stat-label">콤보</div><div id="v-combo" class="stat-value">x0</div></div>
         <div class="stat right"><div class="stat-label">점수</div><div id="v-score" class="stat-value">0</div></div>
     </div>
 
@@ -283,7 +281,7 @@
                     </button>
                     <div class="mode-picker" aria-label="게임 모드">
                         <button type="button" id="mode-classic" class="mode-btn" onclick="Game.setMode('classic')">120초 클래식</button>
-                        <button type="button" id="mode-rush" class="mode-btn" onclick="Game.setMode('rush')">60초 스피드 x2</button>
+                        <button type="button" id="mode-rush" class="mode-btn" onclick="Game.setMode('rush')">60초 스피드</button>
                     </div>
                 </div>
 
@@ -314,7 +312,7 @@
                 <div id="res-detail" class="result-detail"></div>
                 <div class="result-grid">
                     <div class="result-chip"><span>모드</span><strong id="res-mode">-</strong></div>
-                    <div class="result-chip"><span>최고 콤보</span><strong id="res-combo">x0</strong></div>
+                    <div class="result-chip"><span>플레이 시간</span><strong id="res-time">-</strong></div>
                     <div class="result-chip"><span>터뜨린 사과</span><strong id="res-apples">0</strong></div>
                 </div>
             </div>
@@ -343,15 +341,15 @@ const db = (() => {
 
 const ROWS = 10, COLS = 17, CELL = 52, PAD = 25, DEFAULT_TIME = 120, MAX_NICK = 12, LOW_APPLE_LIMIT = 18;
 const DEFAULT_NICK = "플레이어";
-const MAX_RANK_SCORE = 999999, SAVE_COOLDOWN_MS = 8000;
+const MAX_RANK_SCORE = 999999, SAVE_COOLDOWN_MS = 8000, SCORE_VERSION = 2;
 const dpr = window.devicePixelRatio || 1;
 
 const Game = {
     canvas: document.getElementById('stage'),
     ctx: document.getElementById('stage').getContext('2d'),
     active: false, dragging: false,
-    score: 0, time: DEFAULT_TIME, mode: "classic", modeTime: DEFAULT_TIME, scoreMultiplier: 1,
-    fever: 0, combo: 0, maxCombo: 0, cleared: 0, reshuffles: 0,
+    score: 0, time: DEFAULT_TIME, mode: "classic", modeTime: DEFAULT_TIME,
+    fever: 0, cleared: 0, reshuffles: 0,
     playStartedAt: 0, scoreSaved: false,
     nick: DEFAULT_NICK, playerKey: "player", latestRanks: [], rankMode: "all", rankFallbackActive: false, composingNick: false,
     grid: [], effects: [], particles: [],
@@ -450,10 +448,11 @@ const Game = {
     },
 
     getRankKey(mode = this.mode) {
-        return `${mode}_${this.playerKey}`;
+        return `v${SCORE_VERSION}_${mode}_${this.playerKey}`;
     },
 
     getModeFromRankKey(key = "") {
+        if(String(key).startsWith(`v${SCORE_VERSION}_rush_`)) return "rush";
         if(String(key).startsWith("rush_")) return "rush";
         return "classic";
     },
@@ -463,22 +462,19 @@ const Game = {
     },
 
     getBestKey(mode = this.mode) {
-        return `apple_best_${mode}`;
+        return `apple_best_v${SCORE_VERSION}_${mode}`;
     },
 
     getLocalBest(mode = this.mode) {
-        const modeBest = Number(localStorage.getItem(this.getBestKey(mode)) || 0);
-        const oldBest = mode === "classic" ? Number(localStorage.getItem('apple_best') || 0) : 0;
-        return Math.max(modeBest, oldBest);
+        return Number(localStorage.getItem(this.getBestKey(mode)) || 0);
     },
 
     setLocalBest(score, mode = this.mode) {
         localStorage.setItem(this.getBestKey(mode), score);
-        if(mode === "classic") localStorage.setItem('apple_best', score);
     },
 
     getSaveCooldownKey(mode = this.mode) {
-        return `apple_last_save_${mode}`;
+        return `apple_last_save_v${SCORE_VERSION}_${mode}`;
     },
 
     validateRankSave() {
@@ -532,7 +528,6 @@ const Game = {
     setMode(mode) {
         this.mode = mode === "rush" ? "rush" : "classic";
         this.modeTime = this.mode === "rush" ? 60 : 120;
-        this.scoreMultiplier = this.mode === "rush" ? 2 : 1;
         this.time = this.active ? this.time : this.modeTime;
         localStorage.setItem('apple_mode', this.mode);
         document.getElementById('mode-rush')?.classList.toggle('active', this.mode === "rush");
@@ -625,7 +620,6 @@ const Game = {
     haptic(type) {
         if(!navigator.vibrate) return;
         if(type === "hit") navigator.vibrate([18]);
-        if(type === "combo") navigator.vibrate([18, 24, 18]);
         if(type === "miss") navigator.vibrate([8]);
     },
 
@@ -686,7 +680,7 @@ const Game = {
         this.spawnEffect(message, centerX, centerY, '#f4b63a');
         this.spawnBurst(centerX, centerY, true);
         this.flashBoard('hit');
-        this.haptic("combo");
+        this.haptic("hit");
     },
 
     ensureBoard() {
@@ -743,6 +737,8 @@ const Game = {
             const data = child.val() || {};
             const score = Number(data.score);
             if(!Number.isFinite(score) || score <= 0) return;
+            const version = Number(data.version) || (String(child.key).startsWith(`v${SCORE_VERSION}_`) ? SCORE_VERSION : 1);
+            if(version !== SCORE_VERSION) return;
             rows.push({
                 key: child.key,
                 mode: this.getModeFromRankKey(child.key),
@@ -824,7 +820,7 @@ const Game = {
         nickInput.value = this.nick === DEFAULT_NICK ? "" : this.nick;
         localStorage.setItem('apple_nick', this.nick);
         this.buildPlayableBoard();
-        this.score = 0; this.time = this.modeTime; this.fever = 0; this.combo = 0; this.maxCombo = 0; this.cleared = 0; this.reshuffles = 0; this.effects = []; this.particles = []; this.active = true;
+        this.score = 0; this.time = this.modeTime; this.fever = 0; this.cleared = 0; this.reshuffles = 0; this.effects = []; this.particles = []; this.active = true;
         this.playStartedAt = Date.now();
         this.scoreSaved = false;
         this.setNickHelp("");
@@ -850,9 +846,9 @@ const Game = {
         document.getElementById('res-title').innerText = isNewBest ? "새 기록!" : "시간 끝!";
         document.getElementById('res-score').innerText = this.score.toLocaleString();
         const modeLabel = this.getModeLabel();
-        document.getElementById('res-detail').innerText = `${this.nick} · 최고 ${Math.max(myBest, this.score).toLocaleString()}점 · 섞기 ${this.reshuffles}회`;
+        document.getElementById('res-detail').innerText = `${this.nick} · 최고 ${Math.max(myBest, this.score).toLocaleString()}점`;
         document.getElementById('res-mode').innerText = modeLabel;
-        document.getElementById('res-combo').innerText = `x${this.maxCombo}`;
+        document.getElementById('res-time').innerText = `${this.modeTime}초`;
         document.getElementById('res-apples').innerText = this.cleared.toLocaleString();
         this.saveScore();
         document.getElementById('screen-result').classList.remove('hidden');
@@ -886,6 +882,7 @@ const Game = {
         const payload = {
             nick: this.nick,
             score: Math.round(this.score),
+            version: SCORE_VERSION,
             updatedAt: firebase.database.ServerValue.TIMESTAMP,
         };
         localStorage.setItem(this.getSaveCooldownKey(), Date.now());
@@ -906,7 +903,7 @@ const Game = {
     },
 
     share() {
-        const modeLabel = this.mode === "rush" ? "60초 러시" : "120초 클래식";
+        const modeLabel = this.getModeLabel();
         const text = `${this.nick}님이 사과 팡팡 ${modeLabel}에서 ${this.score.toLocaleString()}점을 달성! 내 점수 이겨봐.`;
         const shareUrl = this.buildShareUrl();
         const message = `${text} ${shareUrl}`;
@@ -926,9 +923,7 @@ const Game = {
         if(sel.sum === 10 && sel.items.length) {
             const feverOn = this.fever >= 100;
             const feverBefore = this.fever;
-            this.combo++;
-            this.maxCombo = Math.max(this.maxCombo, this.combo);
-            const points = sel.items.length * 10 * this.combo * this.scoreMultiplier * (feverOn ? 3 : 1);
+            const points = sel.items.length * 10 * (feverOn ? 3 : 1);
             this.score += points;
             this.cleared += sel.items.length;
             this.fever = Math.min(100, this.fever + 12);
@@ -937,11 +932,9 @@ const Game = {
             if(feverBefore < 100 && this.fever >= 100) this.spawnEffect("피버 준비", sel.center.x, sel.center.y - 66, '#f4b63a');
             this.spawnBurst(sel.center.x, sel.center.y, feverOn);
             this.flashBoard('hit');
-            this.haptic(this.combo > 1 ? "combo" : "hit");
-            if(this.combo > 1) this.spawnEffect(`x${this.combo}`, sel.center.x, sel.center.y - 34, '#f4b63a');
+            this.haptic("hit");
             setTimeout(() => this.ensureBoard(), 320);
         } else {
-            this.combo = 0;
             this.fever = Math.max(0, this.fever - 5);
             if(sel.items.length) {
                 this.flashBoard('miss');
@@ -1077,7 +1070,6 @@ const Game = {
     updateHud() {
         document.getElementById('v-time').innerText = this.time;
         document.getElementById('v-score').innerText = this.score.toLocaleString();
-        document.getElementById('v-combo').innerText = `x${this.combo}`;
     },
 
     loop() {
