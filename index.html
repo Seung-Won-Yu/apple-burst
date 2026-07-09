@@ -59,10 +59,10 @@
         .rotate-copy { color: var(--muted); font-size: 13px; line-height: 1.5; margin: 0; }
         @keyframes rotate { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } }
 
-        #game-container { position: relative; display: flex; flex-direction: column; align-items: center; width: min(96vw, 1000px); padding: 12px 0; }
+        #game-container { --chrome-width: 1000px; position: relative; display: flex; flex-direction: column; align-items: center; width: min(96vw, 1000px); padding: 12px 0; }
 
         /* UI */
-        #header { width: min(100%, 1000px); display: grid; grid-template-columns: auto 1fr auto; align-items: end; gap: 12px; margin-bottom: 10px; padding: 0 1px; box-sizing: border-box; }
+        #header { width: min(100%, var(--chrome-width)); display: grid; grid-template-columns: auto 1fr auto; align-items: end; gap: 12px; margin-bottom: 10px; padding: 0 1px; box-sizing: border-box; }
         .stat { display: flex; flex-direction: column; justify-self: start; width: 132px; min-width: 0; box-sizing: border-box; background: rgba(255,255,255,0.78); border: 1px solid rgba(5,106,42,0.14); border-radius: 6px; padding: 5px 9px; box-shadow: inset 0 -2px 0 rgba(5,106,42,0.08); }
         .stat.center { align-items: center; justify-self: center; }
         .stat.right { grid-column: 3; align-items: flex-end; justify-self: end; }
@@ -174,13 +174,13 @@
         #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 18px); z-index: 10000; min-width: min(88vw, 320px); max-width: 90vw; padding: 12px 16px; border-radius: 999px; background: rgba(47, 157, 103, 0.94); color: #fff; font-size: 13px; font-weight: 900; text-align: center; opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s; box-shadow: 0 14px 34px rgba(34,104,67,0.22); }
         #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-        #fever-bar { position: relative; width: min(90%, 850px); height: 8px; background: rgba(255,255,255,0.72); border: 1px solid var(--line); border-radius: 999px; margin-top: 20px; overflow: hidden; }
+        #fever-bar { position: relative; width: min(90%, var(--chrome-width), 850px); height: 8px; background: rgba(255,255,255,0.72); border: 1px solid var(--line); border-radius: 999px; margin-top: 20px; overflow: hidden; }
         #fever-bar.fever-ready { border-color: rgba(244,182,58,0.72); box-shadow: 0 0 0 3px rgba(244,182,58,0.14); }
         #fever-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #38d976, #ffd744); transition: width 0.3s; }
         @media (min-width: 1100px) and (pointer: fine) {
             body { align-items: center; }
             #game-container { width: min(94vw, 1000px); padding: 16px 0; }
-            #header { width: min(100%, 1000px); margin-bottom: 12px; }
+            #header { width: min(100%, var(--chrome-width)); margin-bottom: 12px; }
             .stat { width: 136px; }
             .stat-label { font-size: 11px; }
             .stat-value { font-size: clamp(34px, 3vw, 46px); }
@@ -197,7 +197,7 @@
             .rank-meta { font-size: 11px; }
             .btn { padding: 12px 34px; font-size: 19px; }
             .result-card { width: min(60%, 580px); padding: 22px; }
-            #fever-bar { width: min(90vw, 1120px); margin-top: 14px; }
+            #fever-bar { width: min(90vw, var(--chrome-width)); margin-top: 14px; }
         }
         @media (orientation: landscape) and (pointer: coarse) {
             body { align-items: flex-start; min-height: 100dvh; }
@@ -208,7 +208,7 @@
             .stat-value { font-size: clamp(24px, 9dvh, 42px); }
             #stage-wrap { --stage-pad-top: 4px; --stage-pad-x: 4px; --stage-pad-bottom: 18px; border-radius: 12px; }
             canvas { max-width: none; max-height: none; border-radius: 9px; }
-            #fever-bar { width: min(94vw, 934px); height: 6px; margin-top: 5px; }
+            #fever-bar { width: min(94vw, var(--chrome-width, 934px)); height: 6px; margin-top: 5px; }
             .overlay { padding: 12px; }
             h1 { font-size: clamp(30px, 8dvh, 48px); }
             .brand { grid-template-columns: 46px auto; margin-bottom: 8px; }
@@ -590,6 +590,18 @@ const Game = {
         return window.matchMedia('(min-width: 900px) and (pointer: fine)').matches;
     },
 
+    syncChromeWidth(canvasWidth = null) {
+        const container = document.getElementById('game-container');
+        const wrap = document.getElementById('stage-wrap');
+        if(!container || !wrap) return;
+        const style = getComputedStyle(wrap);
+        const px = (value) => Number.parseFloat(value) || 0;
+        const frameX = px(style.paddingLeft) + px(style.paddingRight) + px(style.borderLeftWidth) + px(style.borderRightWidth);
+        const measuredCanvasWidth = canvasWidth || this.canvas.getBoundingClientRect().width;
+        const width = Math.ceil(measuredCanvasWidth + frameX);
+        if(width > 0) container.style.setProperty('--chrome-width', `${width}px`);
+    },
+
     layout() {
         const baseW = COLS * CELL + PAD * 2;
         const baseH = ROWS * CELL + PAD * 2;
@@ -601,12 +613,15 @@ const Game = {
                 const availableW = Math.max(760, Math.min(1220, viewport.width - 80));
                 const availableH = Math.max(460, viewport.height - headerH - 112);
                 const scale = Math.min(availableW / baseW, availableH / baseH, 1);
-                this.canvas.style.width = `${Math.floor(baseW * scale)}px`;
+                const canvasW = Math.floor(baseW * scale);
+                this.canvas.style.width = `${canvasW}px`;
                 this.canvas.style.maxHeight = "none";
+                this.syncChromeWidth(canvasW);
                 return;
             }
             this.canvas.style.width = "";
             this.canvas.style.maxHeight = "";
+            requestAnimationFrame(() => this.syncChromeWidth());
             return;
         }
         const viewport = window.visualViewport || { width: window.innerWidth, height: window.innerHeight };
@@ -615,8 +630,10 @@ const Game = {
         const availableW = Math.max(360, viewport.width - 16);
         const availableH = Math.max(240, viewport.height - headerH - 24);
         const scale = Math.min(availableW / baseW, availableH / baseH);
-        this.canvas.style.width = `${Math.floor(baseW * scale)}px`;
+        const canvasW = Math.floor(baseW * scale);
+        this.canvas.style.width = `${canvasW}px`;
         this.canvas.style.maxHeight = "none";
+        this.syncChromeWidth(canvasW);
     },
 
     enterFullscreen() {
