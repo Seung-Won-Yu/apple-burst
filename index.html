@@ -3,26 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APPLE BURST: GLOBAL CHAMPION</title>
+    <title>사과 팡팡: 오늘의 챔피언</title>
     <!-- Firebase SDK (실시간 랭킹용) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="firebase-config.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Noto+Sans+KR:wght@900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Noto+Sans+KR:wght@700;900&display=swap');
 
-        :root { --bg: #0a0a0f; --panel: rgba(255,255,255,0.08); --apple: #ff3b30; --fever: #ff00ff; --accent: #00e5ff; --gold: #ffcc00; }
+        :root {
+            --bg: #fff6d8;
+            --ink: #332015;
+            --muted: #7c6658;
+            --panel: rgba(255, 252, 241, 0.88);
+            --apple: #f04d3f;
+            --leaf: #2f9d67;
+            --accent: #2477ff;
+            --gold: #f4b63a;
+            --line: rgba(94, 57, 24, 0.16);
+        }
         body {
-            margin: 0; background: var(--bg); color: white;
+            margin: 0; background: var(--bg); color: var(--ink);
             font-family: 'Montserrat', 'Noto Sans KR', sans-serif;
             display: flex; align-items: center; justify-content: center;
             min-height: 100svh; width: 100vw; overflow: hidden; user-select: none; touch-action: manipulation;
-            background:
-                radial-gradient(circle at 20% 10%, rgba(255, 59, 48, 0.18), transparent 28%),
-                radial-gradient(circle at 80% 0%, rgba(0, 229, 255, 0.12), transparent 24%),
-                var(--bg);
+            background: linear-gradient(180deg, #fff6d8 0%, #e7fbff 100%);
         }
-        body.fevering { background: radial-gradient(circle at 50% 50%, rgba(255, 204, 0, 0.18), transparent 35%), var(--bg); }
+        body.fevering { background: linear-gradient(180deg, #fff0b8 0%, #ffdf91 100%); }
 
         /* 휴대폰 세로 화면에서는 가로 모드 전환을 안내한다. */
         #rotate-notice {
@@ -34,9 +41,9 @@
             #rotate-notice { display: flex; }
             #game-container { display: none; }
         }
-        .phone-icon { width: 44px; height: 76px; border: 3px solid white; border-radius: 12px; animation: rotate 2s ease-in-out infinite; }
+        .phone-icon { width: 44px; height: 76px; border: 3px solid var(--ink); border-radius: 12px; animation: rotate 2s ease-in-out infinite; }
         .rotate-title { font-size: 22px; font-weight: 900; }
-        .rotate-copy { color: rgba(255,255,255,0.68); font-size: 13px; line-height: 1.5; margin: 0; }
+        .rotate-copy { color: var(--muted); font-size: 13px; line-height: 1.5; margin: 0; }
         @keyframes rotate { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } }
 
         #game-container { position: relative; display: flex; flex-direction: column; align-items: center; width: min(96vw, 1280px); padding: 12px 0; }
@@ -46,12 +53,12 @@
         .stat { display: flex; flex-direction: column; min-width: 90px; }
         .stat.center { align-items: center; }
         .stat.right { align-items: flex-end; }
-        .stat-label { font-size: 10px; color: #9aa; text-transform: uppercase; letter-spacing: 0; }
+        .stat-label { font-size: 10px; color: var(--muted); letter-spacing: 0; }
         .stat-value { font-size: clamp(24px, 4vw, 34px); font-weight: 900; line-height: 1; }
         #v-combo { color: var(--gold); }
 
-        #stage-wrap { position: relative; background: rgba(255,255,255,0.04); border-radius: 18px; padding: 5px; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 20px 60px rgba(0,0,0,0.36); transition: border-color 0.2s, box-shadow 0.2s; }
-        #stage-wrap.fevering { border-color: rgba(255,204,0,0.85); box-shadow: 0 0 36px rgba(255,204,0,0.22), 0 20px 60px rgba(0,0,0,0.36); }
+        #stage-wrap { position: relative; background: #fffdf6; border-radius: 18px; padding: 5px; border: 2px solid var(--line); box-shadow: 0 18px 40px rgba(104, 72, 28, 0.16); transition: border-color 0.2s, box-shadow 0.2s; }
+        #stage-wrap.fevering { border-color: rgba(244,182,58,0.88); box-shadow: 0 0 0 5px rgba(244,182,58,0.16), 0 18px 40px rgba(104,72,28,0.16); }
         #stage-wrap.hit { animation: hit-pulse 0.28s ease-out; }
         #stage-wrap.miss { animation: miss-shake 0.18s ease-out; }
         canvas { display: block; border-radius: 12px; cursor: crosshair; width: min(100%, 1120px); max-width: 100%; max-height: min(76svh, 720px); height: auto; touch-action: none; }
@@ -61,56 +68,57 @@
         /* 오버레이 */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 10, 15, 0.94); backdrop-filter: blur(18px);
+            background: rgba(255, 252, 241, 0.95); backdrop-filter: blur(18px);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             z-index: 100; border-radius: 15px; text-align: center; padding: 18px; box-sizing: border-box;
         }
         .hidden { display: none !important; }
 
-        h1 { font-size: clamp(34px, 6vw, 58px); margin: 0 0 10px 0; background: linear-gradient(#ff3b30, #ff9500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .tagline { margin: 0 0 18px; color: rgba(255,255,255,0.78); font-size: 13px; font-weight: 900; }
+        h1 { font-size: clamp(34px, 6vw, 58px); margin: 0 0 10px 0; color: var(--apple); text-shadow: 0 3px 0 rgba(255, 190, 83, 0.35); }
+        .tagline { margin: 0 0 18px; color: var(--muted); font-size: 13px; font-weight: 900; }
         .mode-picker { display: flex; gap: 8px; margin: 0 0 12px; }
-        .mode-btn { min-width: 112px; padding: 9px 12px; border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.76); font-family: inherit; font-weight: 900; cursor: pointer; }
-        .mode-btn.active { border-color: var(--accent); background: rgba(0,229,255,0.14); color: #fff; box-shadow: 0 0 0 3px rgba(0,229,255,0.08); }
-        input { width: min(72vw, 260px); background: rgba(255,255,255,0.1); border: 2px solid var(--accent); color: white; padding: 12px 14px; border-radius: 10px; font-size: 18px; text-align: center; outline: none; margin-bottom: 12px; font-family: inherit; text-transform: uppercase; }
-        input:focus { box-shadow: 0 0 0 4px rgba(0,229,255,0.14); }
+        .mode-btn { min-width: 112px; padding: 9px 12px; border: 2px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); font-family: inherit; font-weight: 900; cursor: pointer; }
+        .mode-btn.active { border-color: var(--leaf); background: rgba(47,157,103,0.12); color: var(--ink); box-shadow: 0 0 0 4px rgba(47,157,103,0.08); }
+        input { width: min(72vw, 260px); background: #fff; border: 2px solid var(--accent); color: var(--ink); padding: 12px 14px; border-radius: 10px; font-size: 18px; text-align: center; outline: none; margin-bottom: 12px; font-family: inherit; text-transform: uppercase; }
+        input::placeholder { color: rgba(124,102,88,0.58); }
+        input:focus { box-shadow: 0 0 0 4px rgba(36,119,255,0.14); }
         input, button, #rank-container, .overlay { touch-action: manipulation; }
-        .nick-help, .save-state, .result-detail { color: rgba(255,255,255,0.68); font-size: 12px; min-height: 18px; margin-bottom: 10px; }
-        .result-detail { color: rgba(255,255,255,0.82); }
-        .challenge-banner { width: min(86%, 430px); margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; background: rgba(255,204,0,0.12); border: 1px solid rgba(255,204,0,0.28); color: #fff; font-size: 12px; line-height: 1.45; }
+        .nick-help, .save-state, .result-detail { color: var(--muted); font-size: 12px; min-height: 18px; margin-bottom: 10px; }
+        .result-detail { color: var(--ink); }
+        .challenge-banner { width: min(86%, 430px); margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; background: rgba(244,182,58,0.18); border: 1px solid rgba(244,182,58,0.46); color: var(--ink); font-size: 12px; line-height: 1.45; }
         .challenge-banner strong { color: var(--gold); }
-        .result-card { width: min(88%, 460px); padding: 18px; border-radius: 14px; background: linear-gradient(145deg, rgba(255,59,48,0.16), rgba(0,229,255,0.10)); border: 1px solid rgba(255,255,255,0.12); box-shadow: inset 0 1px 0 rgba(255,255,255,0.12); margin-bottom: 12px; }
-        .result-label { color: rgba(255,255,255,0.58); font-size: 11px; letter-spacing: 0; text-transform: uppercase; }
-        #res-score { font-size: clamp(42px, 8vw, 68px); line-height: 1; margin: 8px 0 12px; color: #fff; text-shadow: 0 0 24px rgba(255,204,0,0.28); }
+        .result-card { width: min(88%, 460px); padding: 18px; border-radius: 14px; background: #fff; border: 2px solid var(--line); box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); margin-bottom: 12px; }
+        .result-label { color: var(--muted); font-size: 11px; letter-spacing: 0; }
+        #res-score { font-size: clamp(42px, 8vw, 68px); line-height: 1; margin: 8px 0 12px; color: var(--apple); text-shadow: 0 3px 0 rgba(244,182,58,0.24); }
         .result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
-        .result-chip { border-radius: 8px; background: rgba(0,0,0,0.24); padding: 9px 7px; }
-        .result-chip span { display: block; color: rgba(255,255,255,0.56); font-size: 9px; text-transform: uppercase; }
-        .result-chip strong { display: block; margin-top: 3px; font-size: 14px; color: #fff; }
+        .result-chip { border-radius: 8px; background: rgba(47,157,103,0.08); padding: 9px 7px; }
+        .result-chip span { display: block; color: var(--muted); font-size: 9px; }
+        .result-chip strong { display: block; margin-top: 3px; font-size: 14px; color: var(--ink); }
         
-        .btn { padding: 12px 35px; font-size: 18px; font-weight: 900; background: var(--apple); color: white; border: none; border-radius: 50px; cursor: pointer; margin: 5px; font-family: inherit; transition: transform 0.15s, filter 0.15s; }
+        .btn { padding: 12px 35px; font-size: 18px; font-weight: 900; background: var(--apple); color: white; border: none; border-radius: 50px; cursor: pointer; margin: 5px; font-family: inherit; transition: transform 0.15s, filter 0.15s; box-shadow: 0 8px 0 rgba(122, 39, 28, 0.2); }
         .btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
-        .btn.share { background: #00e5ff; color: #000; }
+        .btn.share { background: var(--leaf); color: #fff; box-shadow-color: rgba(34, 104, 67, 0.22); }
 
         /* 랭킹 리스트 */
-        #rank-container { width: min(86%, 430px); max-height: min(34svh, 240px); overflow-y: auto; background: rgba(0,0,0,0.34); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; margin-bottom: 15px; font-size: 14px; }
+        #rank-container { width: min(86%, 430px); max-height: min(34svh, 240px); overflow-y: auto; background: rgba(255,255,255,0.72); border: 2px solid var(--line); border-radius: 10px; padding: 10px; margin-bottom: 15px; font-size: 14px; }
         .rank-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
         .rank-title { color: var(--accent); font-size: 12px; }
         .rank-tabs { display: flex; gap: 5px; }
-        .rank-tab { border: 1px solid rgba(255,255,255,0.12); border-radius: 999px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.72); padding: 5px 9px; font: inherit; font-size: 10px; cursor: pointer; }
-        .rank-tab.active { background: rgba(0,229,255,0.18); border-color: rgba(0,229,255,0.76); color: #fff; }
-        .rank-meta { color: rgba(255,255,255,0.58); font-size: 10px; line-height: 1.4; margin: 0 0 6px; text-align: left; }
-        .my-rank { display: grid; grid-template-columns: 54px 1fr auto; gap: 8px; align-items: center; color: var(--gold); background: rgba(255,204,0,0.1); border: 1px solid rgba(255,204,0,0.18); border-radius: 8px; padding: 7px 8px; margin-bottom: 7px; }
-        .rank-item { display: grid; grid-template-columns: 40px 1fr auto; gap: 8px; align-items: center; padding: 6px 2px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .rank-tab { border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); padding: 5px 9px; font: inherit; font-size: 10px; cursor: pointer; }
+        .rank-tab.active { background: rgba(36,119,255,0.12); border-color: rgba(36,119,255,0.62); color: var(--ink); }
+        .rank-meta { color: var(--muted); font-size: 10px; line-height: 1.4; margin: 0 0 6px; text-align: left; }
+        .my-rank { display: grid; grid-template-columns: 54px 1fr auto; gap: 8px; align-items: center; color: #9b6812; background: rgba(244,182,58,0.16); border: 1px solid rgba(244,182,58,0.34); border-radius: 8px; padding: 7px 8px; margin-bottom: 7px; }
+        .rank-item { display: grid; grid-template-columns: 40px 1fr auto; gap: 8px; align-items: center; padding: 6px 2px; border-bottom: 1px solid var(--line); }
         .rank-item:last-child { border-bottom: 0; }
         .rank-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
-        .rank-score { color: rgba(255,255,255,0.88); }
-        .rank-item.me { color: var(--accent); font-weight: bold; background: rgba(0,229,255,0.08); border-radius: 8px; padding-left: 6px; padding-right: 6px; }
-        .rank-empty { color: rgba(255,255,255,0.55); padding: 12px 0; }
-        #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 18px); z-index: 10000; min-width: min(88vw, 320px); max-width: 90vw; padding: 12px 16px; border-radius: 999px; background: rgba(0, 229, 255, 0.92); color: #001014; font-size: 13px; font-weight: 900; text-align: center; opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s; box-shadow: 0 14px 40px rgba(0,0,0,0.36); }
+        .rank-score { color: var(--ink); }
+        .rank-item.me { color: var(--accent); font-weight: bold; background: rgba(36,119,255,0.08); border-radius: 8px; padding-left: 6px; padding-right: 6px; }
+        .rank-empty { color: var(--muted); padding: 12px 0; }
+        #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 18px); z-index: 10000; min-width: min(88vw, 320px); max-width: 90vw; padding: 12px 16px; border-radius: 999px; background: rgba(47, 157, 103, 0.94); color: #fff; font-size: 13px; font-weight: 900; text-align: center; opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s; box-shadow: 0 14px 34px rgba(34,104,67,0.22); }
         #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-        #fever-bar { width: 90%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; margin-top: 15px; overflow: hidden; }
-        #fever-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #ff3b30, #ffcc00); transition: width 0.3s; }
+        #fever-bar { width: 90%; height: 8px; background: rgba(255,255,255,0.72); border: 1px solid var(--line); border-radius: 10px; margin-top: 15px; overflow: hidden; }
+        #fever-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #f04d3f, #f4b63a, #2f9d67); transition: width 0.3s; }
         @media (min-width: 1100px) and (pointer: fine) {
             body { align-items: center; }
             #game-container { width: min(94vw, 1320px); padding: 16px 0; }
@@ -170,6 +178,10 @@
         @media (orientation: portrait) and (max-width: 720px) {
             .overlay { position: fixed; top: 52px; left: 10px; right: 10px; bottom: 16px; width: auto; height: auto; }
         }
+        @media (orientation: portrait) and (pointer: coarse) and (max-width: 760px) {
+            #rotate-notice { display: flex; }
+            #game-container { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -182,54 +194,54 @@
 
 <div id="game-container">
     <div id="header">
-        <div class="stat"><div class="stat-label">Time</div><div id="v-time" class="stat-value">120</div></div>
-        <div class="stat center"><div class="stat-label">Combo</div><div id="v-combo" class="stat-value">x0</div></div>
-        <div class="stat right"><div class="stat-label">Score</div><div id="v-score" class="stat-value">0</div></div>
+        <div class="stat"><div class="stat-label">시간</div><div id="v-time" class="stat-value">120</div></div>
+        <div class="stat center"><div class="stat-label">콤보</div><div id="v-combo" class="stat-value">x0</div></div>
+        <div class="stat right"><div class="stat-label">점수</div><div id="v-score" class="stat-value">0</div></div>
     </div>
 
     <div id="stage-wrap">
         <canvas id="stage"></canvas>
 
         <div id="screen-start" class="overlay">
-            <h1>APPLE BURST</h1>
-            <p class="tagline">MAKE 10. CLIMB THE RANK.</p>
+            <h1>사과 팡팡</h1>
+            <p class="tagline">합이 10이면 팡! 오늘 랭킹도 노려봐요.</p>
             <div id="challenge-banner" class="challenge-banner hidden"></div>
-            <div class="mode-picker" aria-label="Game mode">
-                <button type="button" id="mode-rush" class="mode-btn" onclick="Game.setMode('rush')">60s RUSH x2</button>
-                <button type="button" id="mode-classic" class="mode-btn" onclick="Game.setMode('classic')">120s CLASSIC</button>
+            <div class="mode-picker" aria-label="게임 모드">
+                <button type="button" id="mode-rush" class="mode-btn" onclick="Game.setMode('rush')">60초 스피드 x2</button>
+                <button type="button" id="mode-classic" class="mode-btn" onclick="Game.setMode('classic')">120초 클래식</button>
             </div>
-            <input type="text" id="nick-input" placeholder="NICKNAME" maxlength="12" autocomplete="off" spellcheck="false">
+            <input type="text" id="nick-input" placeholder="닉네임" maxlength="12" autocomplete="off" spellcheck="false">
             <div id="nick-help" class="nick-help"></div>
             <div id="rank-container">
                 <div class="rank-head">
-                    <div class="rank-title">GLOBAL TOP 10</div>
-                    <div class="rank-tabs" aria-label="Ranking tabs">
-                        <button type="button" id="rank-all" class="rank-tab active" onclick="Game.setRankMode('all')">ALL</button>
-                        <button type="button" id="rank-today" class="rank-tab" onclick="Game.setRankMode('today')">TODAY</button>
+                    <div class="rank-title">TOP 10 랭킹</div>
+                    <div class="rank-tabs" aria-label="랭킹 탭">
+                        <button type="button" id="rank-all" class="rank-tab active" onclick="Game.setRankMode('all')">전체</button>
+                        <button type="button" id="rank-today" class="rank-tab" onclick="Game.setRankMode('today')">오늘</button>
                     </div>
                 </div>
                 <p id="rank-meta" class="rank-meta">닉네임별 최고점만 저장됩니다.</p>
                 <div id="my-rank" class="my-rank hidden"></div>
                 <div id="rank-list">로딩 중...</div>
             </div>
-            <button class="btn" onclick="Game.start()">START GAME</button>
+            <button class="btn" onclick="Game.start()">게임 시작</button>
         </div>
 
         <div id="screen-result" class="overlay hidden">
-            <h1 id="res-title">TIME UP!</h1>
+            <h1 id="res-title">시간 끝!</h1>
             <div class="result-card">
-                <div class="result-label">Final Score</div>
+                <div class="result-label">최종 점수</div>
                 <div id="res-score">0</div>
                 <div id="res-detail" class="result-detail"></div>
                 <div class="result-grid">
-                    <div class="result-chip"><span>Mode</span><strong id="res-mode">-</strong></div>
-                    <div class="result-chip"><span>Combo</span><strong id="res-combo">x0</strong></div>
-                    <div class="result-chip"><span>Apples</span><strong id="res-apples">0</strong></div>
+                    <div class="result-chip"><span>모드</span><strong id="res-mode">-</strong></div>
+                    <div class="result-chip"><span>최고 콤보</span><strong id="res-combo">x0</strong></div>
+                    <div class="result-chip"><span>터뜨린 사과</span><strong id="res-apples">0</strong></div>
                 </div>
             </div>
             <div id="save-state" class="save-state"></div>
-            <button class="btn share" onclick="Game.share()">내 점수 이겨봐</button>
-            <button class="btn" onclick="Game.start()">RETRY</button>
+            <button class="btn share" onclick="Game.share()">친구에게 도전장</button>
+            <button class="btn" onclick="Game.start()">다시 하기</button>
         </div>
     </div>
 
@@ -251,6 +263,7 @@ const db = (() => {
 })();
 
 const ROWS = 10, COLS = 17, CELL = 52, PAD = 25, DEFAULT_TIME = 120, MAX_NICK = 12, LOW_APPLE_LIMIT = 18;
+const DEFAULT_NICK = "플레이어";
 const MAX_RANK_SCORE = 999999, SAVE_COOLDOWN_MS = 8000;
 const dpr = window.devicePixelRatio || 1;
 
@@ -261,7 +274,7 @@ const Game = {
     score: 0, time: DEFAULT_TIME, mode: "classic", modeTime: DEFAULT_TIME, scoreMultiplier: 1,
     fever: 0, combo: 0, maxCombo: 0, cleared: 0, reshuffles: 0,
     playStartedAt: 0, scoreSaved: false,
-    nick: "PLAYER", playerKey: "player", latestRanks: [], rankMode: "all", rankFallbackActive: false, composingNick: false,
+    nick: DEFAULT_NICK, playerKey: "player", latestRanks: [], rankMode: "all", rankFallbackActive: false, composingNick: false,
     grid: [], effects: [], particles: [],
     toastTimer: null,
     pointerType: "mouse",
@@ -271,10 +284,10 @@ const Game = {
         this.canvas.width = (COLS * CELL + PAD * 2) * dpr;
         this.canvas.height = (ROWS * CELL + PAD * 2) * dpr;
         this.ctx.scale(dpr, dpr);
-        this.nick = this.cleanNick(localStorage.getItem('apple_nick') || "") || "PLAYER";
+        this.nick = this.cleanNick(localStorage.getItem('apple_nick') || "") || DEFAULT_NICK;
         this.playerKey = this.getPlayerKey(this.nick);
         const nickInput = document.getElementById('nick-input');
-        nickInput.value = this.nick === "PLAYER" ? "" : this.nick;
+        nickInput.value = this.nick === DEFAULT_NICK || this.nick === "PLAYER" ? "" : this.nick;
         this.setMode(localStorage.getItem('apple_mode') || "classic");
         this.loadChallenge();
         this.updateHud();
@@ -367,7 +380,7 @@ const Game = {
     },
 
     getModeLabel(mode = this.mode) {
-        return mode === "rush" ? "60s RUSH" : "120s CLASSIC";
+        return mode === "rush" ? "60초 스피드" : "120초 클래식";
     },
 
     getBestKey(mode = this.mode) {
@@ -429,12 +442,12 @@ const Game = {
         if(params.get('challenge') !== '1') return;
         const mode = params.get('mode') === "rush" ? "rush" : "classic";
         const score = Math.max(0, Math.min(999999, Math.round(Number(params.get('score')) || 0)));
-        const nick = this.cleanNick(params.get('nick') || "FRIEND") || "FRIEND";
+        const nick = this.cleanNick(params.get('nick') || "친구") || "친구";
         if(!score) return;
         this.setMode(mode);
         const banner = document.getElementById('challenge-banner');
         banner.classList.remove('hidden');
-        banner.innerHTML = `<strong>${this.escapeHTML(nick)}</strong>님의 ${this.getModeLabel(mode)} 기록 <strong>${score.toLocaleString()}점</strong>에 도전!`;
+        banner.innerHTML = `<strong>${this.escapeHTML(nick)}</strong>님의 ${this.getModeLabel(mode)} 기록 <strong>${score.toLocaleString()}점</strong>에 도전해봐요!`;
     },
 
     setMode(mode) {
@@ -591,7 +604,7 @@ const Game = {
         this.reshuffles++;
         const centerX = (COLS * CELL + PAD * 2) / 2;
         const centerY = (ROWS * CELL + PAD * 2) / 2;
-        this.spawnEffect(message, centerX, centerY, '#ffcc00');
+        this.spawnEffect(message, centerX, centerY, '#f4b63a');
         this.spawnBurst(centerX, centerY, true);
         this.flashBoard('hit');
         this.haptic("combo");
@@ -601,9 +614,9 @@ const Game = {
         if(!this.active) return;
         const remaining = this.activeCount();
         if(remaining <= LOW_APPLE_LIMIT) {
-            this.refreshBoard("RESHUFFLE");
+            this.refreshBoard("다시 섞기");
         } else if(!this.hasAnyTen()) {
-            this.refreshBoard("NO MOVES");
+            this.refreshBoard("새 조합");
         }
     },
 
@@ -616,7 +629,7 @@ const Game = {
         } else {
             this.setNickHelp("");
         }
-        this.nick = clean || "PLAYER";
+        this.nick = clean || DEFAULT_NICK;
         this.playerKey = this.getPlayerKey(this.nick);
         this.renderRanks(this.latestRanks);
     },
@@ -654,7 +667,7 @@ const Game = {
             rows.push({
                 key: child.key,
                 mode: this.getModeFromRankKey(child.key),
-                nick: this.cleanNick(data.nick) || "PLAYER",
+                nick: this.cleanNick(data.nick) || DEFAULT_NICK,
                 score: Math.max(0, Math.round(score)),
                 updatedAt: Number(data.updatedAt) || 0,
             });
@@ -691,14 +704,14 @@ const Game = {
             myRankBox.classList.remove('hidden');
             myRankBox.innerHTML = `
                 <span>#${myIndex + 1}</span>
-                <span class="rank-name">MY RANK</span>
+                <span class="rank-name">내 순위</span>
                 <span class="rank-score">${myRow.score.toLocaleString()}</span>
             `;
         } else if(myBest) {
             myRankBox.classList.remove('hidden');
             myRankBox.innerHTML = `
                 <span>#-</span>
-                <span class="rank-name">LOCAL BEST</span>
+                <span class="rank-name">내 최고점</span>
                 <span class="rank-score">${myBest.toLocaleString()}</span>
             `;
         } else {
@@ -727,9 +740,9 @@ const Game = {
     start() {
         this.enterFullscreen();
         const nickInput = document.getElementById('nick-input');
-        this.nick = this.cleanNick(nickInput.value) || "PLAYER";
+        this.nick = this.cleanNick(nickInput.value) || DEFAULT_NICK;
         this.playerKey = this.getPlayerKey(this.nick);
-        nickInput.value = this.nick === "PLAYER" ? "" : this.nick;
+        nickInput.value = this.nick === DEFAULT_NICK ? "" : this.nick;
         localStorage.setItem('apple_nick', this.nick);
         this.buildPlayableBoard();
         this.score = 0; this.time = this.modeTime; this.fever = 0; this.combo = 0; this.maxCombo = 0; this.cleared = 0; this.reshuffles = 0; this.effects = []; this.particles = []; this.active = true;
@@ -755,10 +768,10 @@ const Game = {
         const isNewBest = this.validateRankSave() === "OK" && this.score > myBest;
         if(isNewBest) this.setLocalBest(this.score);
 
-        document.getElementById('res-title').innerText = isNewBest ? "NEW BEST!" : "TIME UP!";
+        document.getElementById('res-title').innerText = isNewBest ? "새 기록!" : "시간 끝!";
         document.getElementById('res-score').innerText = this.score.toLocaleString();
         const modeLabel = this.getModeLabel();
-        document.getElementById('res-detail').innerText = `${this.nick} · BEST ${Math.max(myBest, this.score).toLocaleString()} · ${this.reshuffles} SHUFFLES`;
+        document.getElementById('res-detail').innerText = `${this.nick} · 최고 ${Math.max(myBest, this.score).toLocaleString()}점 · 섞기 ${this.reshuffles}회`;
         document.getElementById('res-mode').innerText = modeLabel;
         document.getElementById('res-combo').innerText = `x${this.maxCombo}`;
         document.getElementById('res-apples').innerText = this.cleared.toLocaleString();
@@ -769,17 +782,17 @@ const Game = {
     saveScore() {
         const state = document.getElementById('save-state');
         if(this.scoreSaved) {
-            state.innerText = "RANK ALREADY CHECKED";
+            state.innerText = "랭킹 확인 완료";
             return;
         }
         this.scoreSaved = true;
         const saveStatus = this.validateRankSave();
         if(saveStatus !== "OK") {
             const messages = {
-                NO_SCORE: ["NO SCORE TO SAVE", "0점은 랭킹에 저장하지 않아요"],
-                BAD_SCORE: ["RANK SAVE BLOCKED", "비정상 점수는 저장하지 않아요"],
-                TOO_FAST: ["RANK SAVE BLOCKED", "플레이 시간이 너무 짧아 저장하지 않았어요"],
-                COOLDOWN: ["SAVE COOLDOWN", "너무 잦은 저장은 잠시 막아요"],
+                NO_SCORE: ["저장할 점수가 없어요", "0점은 랭킹에 저장하지 않아요"],
+                BAD_SCORE: ["랭킹 저장 차단", "비정상 점수는 저장하지 않아요"],
+                TOO_FAST: ["랭킹 저장 차단", "플레이 시간이 너무 짧아 저장하지 않았어요"],
+                COOLDOWN: ["잠깐 쉬었다 저장", "너무 잦은 저장은 잠시 막아요"],
             };
             const [label, toast] = messages[saveStatus] || messages.BAD_SCORE;
             state.innerText = label;
@@ -787,7 +800,7 @@ const Game = {
             return;
         }
         if(!db) {
-            state.innerText = "LOCAL BEST SAVED";
+            state.innerText = "내 기기 최고점 저장 완료";
             this.showToast("로컬 최고점 저장 완료");
             return;
         }
@@ -797,29 +810,29 @@ const Game = {
             updatedAt: firebase.database.ServerValue.TIMESTAMP,
         };
         localStorage.setItem(this.getSaveCooldownKey(), Date.now());
-        state.innerText = "RANK SYNCING...";
+        state.innerText = "랭킹 저장 중...";
         db.ref(`ranks/${this.getRankKey()}`).transaction((current) => {
             if(current && Number(current.score) >= payload.score) return;
             return payload;
         }, (error, committed) => {
             if(error) {
                 console.warn(error);
-                state.innerText = "RANK SAVE FAILED";
+                state.innerText = "랭킹 저장 실패";
                 this.showToast("랭킹 저장 실패");
                 return;
             }
-            state.innerText = committed ? "GLOBAL BEST SAVED" : "GLOBAL BEST KEPT";
+            state.innerText = committed ? "랭킹 최고점 저장 완료" : "기존 최고점 유지";
             this.showToast(committed ? `${this.getModeLabel()} 랭킹 저장 완료` : `${this.getModeLabel()} 기존 최고점이 더 높아요`);
         });
     },
 
     share() {
         const modeLabel = this.mode === "rush" ? "60초 러시" : "120초 클래식";
-        const text = `${this.nick}님이 APPLE BURST ${modeLabel}에서 ${this.score.toLocaleString()}점을 달성! 내 점수 이겨봐.`;
+        const text = `${this.nick}님이 사과 팡팡 ${modeLabel}에서 ${this.score.toLocaleString()}점을 달성! 내 점수 이겨봐.`;
         const shareUrl = this.buildShareUrl();
         const message = `${text} ${shareUrl}`;
         if(navigator.share) {
-            navigator.share({ title: 'APPLE BURST', text: message }).catch(() => {
+            navigator.share({ title: '사과 팡팡', text: message }).catch(() => {
                 navigator.clipboard?.writeText(message).then(() => this.showToast("공유 문구를 복사했어요"));
             });
         } else if(navigator.clipboard) {
@@ -841,12 +854,12 @@ const Game = {
             this.cleared += sel.items.length;
             this.fever = Math.min(100, this.fever + 12);
             sel.items.forEach(p => this.grid[p.r][p.c].removed = true);
-            this.spawnEffect(feverOn ? `+${points} x3` : `+${points}`, sel.center.x, sel.center.y, feverOn ? '#ffcc00' : '#00e5ff');
-            if(feverBefore < 100 && this.fever >= 100) this.spawnEffect("FEVER READY", sel.center.x, sel.center.y - 66, '#ffcc00');
+            this.spawnEffect(feverOn ? `+${points} x3` : `+${points}`, sel.center.x, sel.center.y, feverOn ? '#f4b63a' : '#2477ff');
+            if(feverBefore < 100 && this.fever >= 100) this.spawnEffect("피버 준비", sel.center.x, sel.center.y - 66, '#f4b63a');
             this.spawnBurst(sel.center.x, sel.center.y, feverOn);
             this.flashBoard('hit');
             this.haptic(this.combo > 1 ? "combo" : "hit");
-            if(this.combo > 1) this.spawnEffect(`x${this.combo}`, sel.center.x, sel.center.y - 34, '#ffcc00');
+            if(this.combo > 1) this.spawnEffect(`x${this.combo}`, sel.center.x, sel.center.y - 34, '#f4b63a');
             setTimeout(() => this.ensureBoard(), 320);
         } else {
             this.combo = 0;
@@ -884,7 +897,7 @@ const Game = {
     },
 
     spawnBurst(x, y, feverOn) {
-        const colors = feverOn ? ['#ffcc00', '#ff3b30', '#00e5ff', '#ffffff'] : ['#ff3b30', '#ff9500', '#00e5ff'];
+        const colors = feverOn ? ['#f4b63a', '#f04d3f', '#2477ff', '#ffffff'] : ['#f04d3f', '#f4b63a', '#2f9d67'];
         const count = feverOn ? 22 : 12;
         for(let i = 0; i < count; i++) {
             const angle = Math.random() * Math.PI * 2;
@@ -916,6 +929,29 @@ const Game = {
 
     loop() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const boardW = COLS * CELL + PAD * 2;
+        const boardH = ROWS * CELL + PAD * 2;
+        this.ctx.save();
+        this.ctx.fillStyle = '#fffdf6';
+        this.ctx.fillRect(0, 0, boardW, boardH);
+        this.ctx.strokeStyle = 'rgba(94, 57, 24, 0.08)';
+        this.ctx.lineWidth = 1;
+        for(let c = 0; c <= COLS; c++) {
+            const x = PAD + c * CELL;
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, PAD);
+            this.ctx.lineTo(x, PAD + ROWS * CELL);
+            this.ctx.stroke();
+        }
+        for(let r = 0; r <= ROWS; r++) {
+            const y = PAD + r * CELL;
+            this.ctx.beginPath();
+            this.ctx.moveTo(PAD, y);
+            this.ctx.lineTo(PAD + COLS * CELL, y);
+            this.ctx.stroke();
+        }
+        this.ctx.restore();
+
         const fevering = this.fever >= 100;
         document.body.classList.toggle('fevering', fevering);
         document.getElementById('stage-wrap').classList.toggle('fevering', fevering);
@@ -934,41 +970,47 @@ const Game = {
                     this.ctx.scale(a.scale, a.scale);
                     if(selItems.some(s=>s.r===r && s.c===c)) this.ctx.scale(1.1, 1.1);
                     if(fevering) {
-                        this.ctx.shadowColor = '#ffcc00';
+                        this.ctx.shadowColor = '#f4b63a';
                         this.ctx.shadowBlur = 18;
                     }
-                    this.ctx.fillStyle = fevering ? `hsl(${Date.now()/5 % 360}, 85%, 58%)` : '#ff3b30';
+                    this.ctx.fillStyle = '#7a4b24';
+                    this.ctx.fillRect(-2, -23, 4, 9);
+                    this.ctx.fillStyle = '#2f9d67';
+                    this.ctx.beginPath();
+                    this.ctx.ellipse(8, -22, 8, 4, -0.65, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.fillStyle = fevering ? `hsl(${Date.now()/5 % 360}, 82%, 58%)` : '#f04d3f';
                     this.ctx.beginPath(); this.ctx.arc(-6,0,18,0,Math.PI*2); this.ctx.arc(6,0,18,0,Math.PI*2); this.ctx.fill();
-                    this.ctx.fillStyle = 'white'; this.ctx.font = "900 22px Montserrat"; this.ctx.textAlign="center"; this.ctx.textBaseline="middle";
+                    this.ctx.fillStyle = 'white'; this.ctx.font = "900 22px Montserrat, 'Noto Sans KR'"; this.ctx.textAlign="center"; this.ctx.textBaseline="middle";
                     this.ctx.fillText(a.val, 0, 2);
                     this.ctx.restore();
                 }
             }
         }
         if(this.dragging) {
-            this.ctx.strokeStyle = '#00e5ff'; this.ctx.lineWidth = 2; this.ctx.setLineDash([5,5]);
+            this.ctx.strokeStyle = '#2477ff'; this.ctx.lineWidth = 2; this.ctx.setLineDash([5,5]);
             this.ctx.strokeRect(this.mStart.x, this.mStart.y, this.mCurrent.x-this.mStart.x, this.mCurrent.y-this.mStart.y);
             const sel = this.getSel();
             if(sel.sum > 0) {
                 const isTouch = this.pointerType === "touch" || this.pointerType === "pen";
                 const labelX = isTouch ? this.mCurrent.x : this.mCurrent.x;
                 const labelY = isTouch ? Math.max(32, this.mCurrent.y - 62) : this.mCurrent.y - 20;
-                this.ctx.fillStyle = sel.sum === 10 ? '#ffcc00' : '#fff';
-                this.ctx.font = "900 24px Montserrat";
+                this.ctx.fillStyle = sel.sum === 10 ? '#f4b63a' : '#332015';
+                this.ctx.font = "900 24px Montserrat, 'Noto Sans KR'";
                 this.ctx.textAlign = "center";
                 if(isTouch) {
                     this.ctx.save();
                     this.ctx.globalAlpha = 0.9;
-                    this.ctx.fillStyle = 'rgba(10,10,15,0.82)';
+                    this.ctx.fillStyle = 'rgba(255,252,241,0.92)';
                     this.ctx.beginPath();
                     this.ctx.arc(labelX, labelY - 8, 24, 0, Math.PI * 2);
                     this.ctx.fill();
                     this.ctx.restore();
-                    this.ctx.fillStyle = sel.sum === 10 ? '#ffcc00' : '#fff';
+                    this.ctx.fillStyle = sel.sum === 10 ? '#f4b63a' : '#332015';
                 }
                 this.ctx.fillText(sel.sum, labelX, labelY);
                 if(isTouch) {
-                    this.ctx.strokeStyle = 'rgba(0,229,255,0.42)';
+                    this.ctx.strokeStyle = 'rgba(36,119,255,0.42)';
                     this.ctx.lineWidth = 1;
                     this.ctx.setLineDash([]);
                     this.ctx.beginPath();
@@ -980,10 +1022,10 @@ const Game = {
         }
         if(fevering) {
             this.ctx.save();
-            this.ctx.fillStyle = 'rgba(255, 204, 0, 0.18)';
-            this.ctx.font = "900 64px Montserrat";
+            this.ctx.fillStyle = 'rgba(244, 182, 58, 0.24)';
+            this.ctx.font = "900 64px Montserrat, 'Noto Sans KR'";
             this.ctx.textAlign = "center";
-            this.ctx.fillText("FEVER x3", (COLS * CELL + PAD * 2) / 2, 72);
+            this.ctx.fillText("피버 x3", (COLS * CELL + PAD * 2) / 2, 72);
             this.ctx.restore();
         }
         this.effects = this.effects.filter(effect => effect.life > 0);
@@ -991,7 +1033,7 @@ const Game = {
             this.ctx.save();
             this.ctx.globalAlpha = Math.max(0, effect.life / 42);
             this.ctx.fillStyle = effect.color;
-            this.ctx.font = "900 26px Montserrat";
+            this.ctx.font = "900 26px Montserrat, 'Noto Sans KR'";
             this.ctx.textAlign = "center";
             this.ctx.fillText(effect.text, effect.x, effect.y);
             this.ctx.restore();

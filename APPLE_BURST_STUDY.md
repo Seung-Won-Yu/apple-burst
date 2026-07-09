@@ -1,4 +1,4 @@
-# APPLE BURST 코드 공부 노트
+# 사과 팡팡 코드 공부 노트
 
 이 문서는 `index.html` 안에 들어있는 주요 코드를 기능별로 쪼개서 공부하기 위한 노트입니다.
 
@@ -829,24 +829,26 @@ loop() {
 
 ## 27. 배포 체크리스트
 
-Netlify에 올릴 때는 현재 구조 기준으로:
+GitHub Pages에 올릴 때는 현재 구조 기준으로:
 
 ```txt
 index.html
+docs/images/apple-burst-home.png
+.github/workflows/deploy-pages.yml
 ```
 
-이 파일만 업로드해도 됩니다.
+`main` 브랜치에 푸시하면 GitHub Actions가 `_site` 폴더를 만들고 Pages에 배포합니다.
 
-업로드 후 캐시 확인:
+저장소 설정 확인:
 
 ```txt
-https://luminous-zuccutto-4b04e6.netlify.app/?v=12
+Settings > Pages > Build and deployment > Source: GitHub Actions
 ```
 
 공유 링크 테스트:
 
 ```txt
-https://luminous-zuccutto-4b04e6.netlify.app/?challenge=1&mode=rush&score=12345&nick=유승원
+https://seung-won-yu.github.io/apple-burst/?challenge=1&mode=rush&score=12345&nick=유승원
 ```
 
 Firebase 확인:
@@ -872,4 +874,3 @@ Realtime Database
 - 누적합 알고리즘
 - 모바일 터치 이벤트
 - 클라이언트 보안의 한계
-

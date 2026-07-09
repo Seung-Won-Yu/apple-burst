@@ -4,8 +4,20 @@
       ".read": true,
       ".indexOn": ["score"],
       "$playerKey": {
-        ".write": true,
-        ".validate": "newData.hasChildren(['nick', 'score', 'updatedAt']) && newData.child('nick').isString() && newData.child('nick').val().length <= 12 && newData.child('score').isNumber() && newData.child('score').val() > 0 && newData.child('score').val() <= 999999 && newData.child('updatedAt').isNumber() && (!data.exists() || newData.child('score').val() >= data.child('score').val())"
+        ".write": "$playerKey.matches(/^(rush|classic)_.{1,90}$/)",
+        ".validate": "newData.hasChildren(['nick', 'score', 'updatedAt']) && (!data.exists() || newData.child('score').val() >= data.child('score').val())",
+        "nick": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 12"
+        },
+        "score": {
+          ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 999999"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber() && newData.val() >= now - 60000 && newData.val() <= now + 60000"
+        },
+        "$other": {
+          ".validate": false
+        }
       }
     }
   }
