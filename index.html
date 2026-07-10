@@ -28,7 +28,7 @@
             --accent: #ff8a1c;
             --gold: #ffd744;
             --line: rgba(5, 106, 42, 0.2);
-            --shadow: 0 14px 0 rgba(0, 111, 47, 0.25), 0 24px 34px rgba(13, 74, 31, 0.18);
+            --shadow: 0 11px 0 rgba(0, 111, 47, 0.23), 0 20px 30px rgba(13, 74, 31, 0.16);
             --surface: rgba(255,255,255,0.86);
             --radius-sm: 4px;
             --radius-md: 8px;
@@ -77,16 +77,16 @@
         .stat.warning .stat-value { color: var(--apple); }
 
         #stage-wrap {
-            --stage-pad-top: 28px;
-            --stage-pad-x: 32px;
-            --stage-pad-bottom: 36px;
+            --stage-pad-top: 22px;
+            --stage-pad-x: 24px;
+            --stage-pad-bottom: 30px;
             position: relative; background: linear-gradient(#24d977, var(--frame));
-            border-radius: 22px; padding: var(--stage-pad-top) var(--stage-pad-x) var(--stage-pad-bottom);
+            border-radius: 18px; padding: var(--stage-pad-top) var(--stage-pad-x) var(--stage-pad-bottom);
             border: 1px solid rgba(0,95,38,0.24); box-shadow: var(--shadow);
             transition: filter 0.2s, box-shadow 0.2s; overflow: hidden;
         }
         #stage-wrap::after {
-            content: ""; position: absolute; left: 52px; right: 52px; bottom: 13px; height: 10px;
+            content: ""; position: absolute; left: 44px; right: 44px; bottom: 10px; height: 8px;
             border-radius: 999px; background: rgba(255,255,255,0.36); box-shadow: inset 0 2px 2px rgba(255,255,255,0.35);
             pointer-events: none;
         }
@@ -110,7 +110,9 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             z-index: 100; border-radius: 3px; text-align: center; padding: 32px; box-sizing: border-box;
         }
+        .overlay:not(.hidden) { animation: overlay-in 0.18s ease-out; }
         .hidden { display: none !important; }
+        @keyframes overlay-in { from { opacity: 0; transform: scale(0.992); } to { opacity: 1; transform: scale(1); } }
 
         .start-layout { width: min(100%, 760px); display: grid; grid-template-columns: 210px minmax(320px, 380px); justify-content: center; align-items: start; gap: 32px; margin-top: 14px; }
         .brand { display: inline-grid; grid-template-columns: 64px auto; align-items: center; gap: 9px; margin-bottom: 10px; }
@@ -131,6 +133,8 @@
         .mode-picker { width: 156px; display: flex; flex-direction: column; justify-content: center; gap: 7px; margin: 0; }
         .mode-btn { width: 100%; min-width: 0; min-height: 40px; padding: 8px 11px; border: 1px solid rgba(5,106,42,0.28); border-radius: var(--radius-sm); background: rgba(255,255,255,0.75); color: var(--muted); font-family: inherit; font-weight: 900; cursor: pointer; box-shadow: inset 0 -2px 0 rgba(5,106,42,0.08); transition: color var(--motion-fast), background-color var(--motion-fast), border-color var(--motion-fast), transform var(--motion-fast); }
         .mode-btn.active { border-color: var(--frame-dark); background: #fff; color: var(--frame-dark); box-shadow: inset 0 -2px 0 rgba(5,106,42,0.16); }
+        .mode-btn:hover, .rank-tab:hover { border-color: var(--frame-dark); color: var(--frame-dark); }
+        .mode-btn:active, .rank-tab:active { transform: translateY(1px); }
         .settings-row { width: min(100%, 380px); display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
         input { width: 100%; box-sizing: border-box; background: #fff; border: 2px solid var(--frame-dark); color: var(--ink); padding: 10px 12px; border-radius: 5px; font-size: 17px; text-align: center; outline: none; font-family: inherit; text-transform: uppercase; box-shadow: inset 0 2px 0 rgba(0,0,0,0.04); }
         input::placeholder { color: rgba(124,102,88,0.58); }
@@ -164,6 +168,7 @@
         
         .btn { padding: 10px 26px; font-size: 17px; font-weight: 900; background: linear-gradient(#ff6a45, var(--apple)); color: white; border: 1px solid rgba(122,39,28,0.25); border-radius: 5px; cursor: pointer; margin: 4px; font-family: inherit; transition: transform 0.15s, filter 0.15s; box-shadow: 0 5px 0 rgba(122, 39, 28, 0.24); }
         .btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+        .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(122,39,28,0.2); }
         .btn.share { background: #fff; border-color: rgba(5,169,77,0.62); color: var(--frame-dark); box-shadow: 0 5px 0 rgba(34,104,67,0.14); }
         .result-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
         .result-actions .btn { min-width: 154px; margin: 0; }
@@ -294,7 +299,7 @@
     </header>
 
     <div id="stage-wrap">
-        <canvas id="stage"></canvas>
+        <canvas id="stage" aria-label="사과 게임판. 드래그해서 합계 10을 만드세요."></canvas>
 
         <div id="screen-start" class="overlay">
             <div class="brand" aria-label="사과 팡팡">
@@ -1193,14 +1198,14 @@ const Game = {
         ctx.fill();
 
         ctx.beginPath();
-        ctx.arc(0, 3, 12.5, 0, Math.PI * 2);
+        ctx.arc(0, 3, 11.5, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(255, 253, 235, 0.98)';
         ctx.fill();
         ctx.strokeStyle = selected ? '#ffd744' : 'rgba(99, 31, 17, 0.52)';
         ctx.lineWidth = selected ? 2.5 : 1.5;
         ctx.stroke();
 
-        ctx.font = "900 20px Montserrat, 'Noto Sans KR'";
+        ctx.font = "900 19px Montserrat, 'Noto Sans KR'";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.lineJoin = "round";
@@ -1344,37 +1349,40 @@ const Game = {
         this.drawTutorialHint(now);
         if(this.dragging) {
             const sel = this.getSel();
-            this.ctx.strokeStyle = sel.sum === 10 ? '#ff3f1f' : '#1fa84f';
-            this.ctx.fillStyle = sel.sum === 10 ? 'rgba(255,63,31,0.12)' : 'rgba(31,168,79,0.08)';
-            this.ctx.lineWidth = sel.sum === 10 ? 3 : 2;
+            const isComplete = sel.sum === 10;
+            this.ctx.strokeStyle = isComplete ? '#ff3f1f' : '#2477ff';
+            this.ctx.fillStyle = isComplete ? 'rgba(255,63,31,0.12)' : 'rgba(36,119,255,0.08)';
+            this.ctx.lineWidth = isComplete ? 3 : 2;
             this.ctx.setLineDash([5,5]);
             this.ctx.fillRect(this.mStart.x, this.mStart.y, this.mCurrent.x-this.mStart.x, this.mCurrent.y-this.mStart.y);
             this.ctx.strokeRect(this.mStart.x, this.mStart.y, this.mCurrent.x-this.mStart.x, this.mCurrent.y-this.mStart.y);
+            this.ctx.setLineDash([]);
             if(sel.sum > 0) {
                 const isTouch = this.pointerType === "touch" || this.pointerType === "pen";
-                const labelX = isTouch ? this.mCurrent.x : this.mCurrent.x;
-                const labelY = isTouch ? Math.max(32, this.mCurrent.y - 62) : this.mCurrent.y - 20;
-                this.ctx.fillStyle = sel.sum === 10 ? '#ff3f1f' : '#203024';
-                this.ctx.font = "900 24px Montserrat, 'Noto Sans KR'";
+                const label = isComplete ? "합계 10!" : `${sel.sum} / 10`;
+                this.ctx.font = "900 18px Montserrat, 'Noto Sans KR'";
                 this.ctx.textAlign = "center";
-                if(isTouch) {
-                    this.ctx.save();
-                    this.ctx.globalAlpha = 0.9;
-                    this.ctx.fillStyle = 'rgba(255,252,241,0.92)';
-                    this.ctx.beginPath();
-                    this.ctx.arc(labelX, labelY - 8, 24, 0, Math.PI * 2);
-                    this.ctx.fill();
-                    this.ctx.restore();
-                    this.ctx.fillStyle = sel.sum === 10 ? '#ff3f1f' : '#203024';
-                }
-                this.ctx.fillText(sel.sum, labelX, labelY);
+                this.ctx.textBaseline = "middle";
+                const labelW = Math.max(74, this.ctx.measureText(label).width + 26);
+                const labelH = 34;
+                const labelX = Math.max(labelW / 2 + 6, Math.min(boardW - labelW / 2 - 6, this.mCurrent.x));
+                const wantedY = this.mCurrent.y - (isTouch ? 64 : 30);
+                const labelY = Math.max(labelH / 2 + 6, Math.min(boardH - labelH / 2 - 6, wantedY));
+
+                this.drawRoundRect(this.ctx, labelX - labelW / 2, labelY - labelH / 2, labelW, labelH, 17);
+                this.ctx.fillStyle = 'rgba(255,252,241,0.96)';
+                this.ctx.fill();
+                this.ctx.strokeStyle = isComplete ? 'rgba(255,63,31,0.72)' : 'rgba(36,119,255,0.52)';
+                this.ctx.lineWidth = 2;
+                this.ctx.stroke();
+                this.ctx.fillStyle = isComplete ? '#d7351c' : '#203024';
+                this.ctx.fillText(label, labelX, labelY + 1);
                 if(isTouch) {
                     this.ctx.strokeStyle = 'rgba(36,119,255,0.42)';
                     this.ctx.lineWidth = 1;
-                    this.ctx.setLineDash([]);
                     this.ctx.beginPath();
                     this.ctx.moveTo(this.mCurrent.x, this.mCurrent.y - 12);
-                    this.ctx.lineTo(labelX, labelY + 12);
+                    this.ctx.lineTo(labelX, labelY + labelH / 2);
                     this.ctx.stroke();
                 }
             }
