@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>사과 팡팡: 오늘의 챔피언</title>
     <link rel="icon" type="image/png" href="assets/apple-mascot.png">
+    <script src="game-rules.js"></script>
     <!-- Firebase SDK (실시간 랭킹용) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -17,8 +18,8 @@
             --frame: #09c95d;
             --frame-dark: #05a94d;
             --frame-light: #3ee781;
-            --board: #efffe6;
-            --board-alt: #d8f7c7;
+            --board: #f8fff3;
+            --board-alt: #eaf8e2;
             --ink: #203024;
             --muted: #5d6b5f;
             --apple: #ff3f1f;
@@ -47,8 +48,6 @@
             background-position: 0 0, 0 12px, 12px -12px, -12px 0;
             background-size: 24px 24px;
         }
-        body.fevering { background-color: #fff8d9; }
-
         /* 휴대폰 세로 화면에서는 가로 모드 전환을 안내한다. */
         #rotate-notice {
             position: fixed; inset: 0; background: var(--bg); z-index: 9999;
@@ -91,7 +90,6 @@
             border-radius: 999px; background: rgba(255,255,255,0.36); box-shadow: inset 0 2px 2px rgba(255,255,255,0.35);
             pointer-events: none;
         }
-        #stage-wrap.fevering { filter: saturate(1.08); box-shadow: 0 0 0 3px rgba(255,215,68,0.36), var(--shadow); }
         #stage-wrap.hit { animation: hit-pulse 0.28s ease-out; }
         #stage-wrap.miss { animation: miss-shake 0.18s ease-out; }
         canvas { display: block; border-radius: 3px; cursor: crosshair; width: min(100%, 900px); max-width: 100%; max-height: min(73svh, 620px); height: auto; touch-action: none; box-shadow: inset 0 0 0 2px rgba(0,120,50,0.18), 0 1px 0 rgba(255,255,255,0.45); }
@@ -188,9 +186,6 @@
         #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 18px); z-index: 10000; min-width: min(88vw, 320px); max-width: 90vw; padding: 12px 16px; border-radius: 999px; background: rgba(47, 157, 103, 0.94); color: #fff; font-size: 13px; font-weight: 900; text-align: center; opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s; box-shadow: 0 14px 34px rgba(34,104,67,0.22); }
         #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-        #fever-bar { position: relative; width: min(100%, var(--chrome-width), 850px); height: 8px; background: rgba(255,255,255,0.72); border: 1px solid var(--line); border-radius: 999px; margin-top: 16px; overflow: hidden; }
-        #fever-bar.fever-ready { border-color: rgba(244,182,58,0.72); box-shadow: 0 0 0 3px rgba(244,182,58,0.14); }
-        #fever-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #38d976, #ffd744); transition: width 0.3s; }
         @media (min-width: 1100px) and (pointer: fine) {
             body { align-items: center; }
             #game-container { width: min(94vw, 1000px); padding: 16px 0; }
@@ -214,7 +209,6 @@
             .btn { padding: 12px 34px; font-size: 19px; }
             .result-actions .btn { min-width: 176px; }
             .result-card { width: min(60%, 580px); padding: 22px; }
-            #fever-bar { width: min(90vw, var(--chrome-width)); margin-top: 14px; }
         }
         @media (orientation: landscape) and (pointer: coarse) {
             body { align-items: flex-start; min-height: 100dvh; }
@@ -225,7 +219,6 @@
             .stat-value { font-size: clamp(24px, 9dvh, 42px); }
             #stage-wrap { --stage-pad-top: 4px; --stage-pad-x: 4px; --stage-pad-bottom: 18px; border-radius: 12px; }
             canvas { max-width: none; max-height: none; border-radius: 9px; }
-            #fever-bar { width: min(94vw, var(--chrome-width, 934px)); height: 6px; margin-top: 5px; }
             .overlay { padding: 12px; }
             h1 { font-size: clamp(30px, 8dvh, 48px); }
             .brand { grid-template-columns: 46px auto; margin-bottom: 8px; }
@@ -311,7 +304,7 @@
                     <h1>사과 팡팡</h1>
                 </div>
             </div>
-            <p class="tagline">마우스나 손가락으로 사과를 감싸서 합계 10을 만들어요.</p>
+            <p class="tagline">합계 10을 만들면 선택한 사과가 1개당 1점씩 올라요.</p>
             <div id="challenge-banner" class="challenge-banner hidden"></div>
 
             <div class="start-layout">
@@ -366,7 +359,6 @@
         </div>
     </div>
 
-    <div id="fever-bar" class="hidden" aria-label="피버 게이지"><div id="fever-fill"></div></div>
 </main>
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -385,9 +377,9 @@ const db = (() => {
 
 const ROWS = 10, COLS = 17, CELL = 52, PAD = 25, DEFAULT_TIME = 120, MAX_NICK = 12, LOW_APPLE_LIMIT = 18;
 const DEFAULT_NICK = "플레이어";
-const MAX_RANK_SCORE = 999999, SAVE_COOLDOWN_MS = 8000, SCORE_VERSION = 2;
+const { SCORE_VERSION, scoreForApples } = window.AppleBurstRules;
+const MAX_RANK_SCORE = 999999, SAVE_COOLDOWN_MS = 8000;
 const TUTORIAL_KEY = `apple_tutorial_seen_v${SCORE_VERSION}`;
-const FEVER_DURATION_MS = 6000;
 const dpr = window.devicePixelRatio || 1;
 
 const Game = {
@@ -395,7 +387,7 @@ const Game = {
     ctx: document.getElementById('stage').getContext('2d'),
     active: false, dragging: false,
     score: 0, time: DEFAULT_TIME, mode: "classic", modeTime: DEFAULT_TIME,
-    fever: 0, feverUntil: 0, cleared: 0, reshuffles: 0,
+    cleared: 0, reshuffles: 0,
     playStartedAt: 0, scoreSaved: false,
     nick: DEFAULT_NICK, playerKey: "player", latestRanks: [], rankMode: "all", rankFallbackActive: false, composingNick: false,
     grid: [], effects: [], particles: [],
@@ -720,7 +712,6 @@ const Game = {
         const toneMap = {
             hit: { from: 520, to: 760, duration: 0.11, volume: 0.04, wave: "triangle" },
             miss: { from: 180, to: 120, duration: 0.12, volume: 0.028, wave: "sine" },
-            fever: { from: 660, to: 990, duration: 0.18, volume: 0.045, wave: "triangle" },
         };
         const tone = toneMap[type] || toneMap.hit;
         osc.type = tone.wave;
@@ -823,22 +814,13 @@ const Game = {
         this.tutorialHint = null;
     },
 
-    isFeverActive(now = performance.now()) {
-        return this.feverUntil > now;
-    },
-
-    activateFever(now = performance.now()) {
-        this.feverUntil = now + FEVER_DURATION_MS;
-        this.fever = 100;
-    },
-
     refreshBoard(message) {
         this.buildPlayableBoard();
         this.reshuffles++;
         const centerX = (COLS * CELL + PAD * 2) / 2;
         const centerY = (ROWS * CELL + PAD * 2) / 2;
         this.spawnEffect(message, centerX, centerY, '#f4b63a');
-        this.spawnBurst(centerX, centerY, true);
+        this.spawnBurst(centerX, centerY);
         this.flashBoard('hit');
         this.haptic("hit");
     },
@@ -981,7 +963,7 @@ const Game = {
         nickInput.value = this.nick === DEFAULT_NICK ? "" : this.nick;
         localStorage.setItem('apple_nick', this.nick);
         this.buildPlayableBoard();
-        this.score = 0; this.time = this.modeTime; this.fever = 0; this.feverUntil = 0; this.cleared = 0; this.reshuffles = 0; this.effects = []; this.particles = []; this.active = true;
+        this.score = 0; this.time = this.modeTime; this.cleared = 0; this.reshuffles = 0; this.effects = []; this.particles = []; this.active = true;
         this.maybeShowTutorialHint();
         this.playStartedAt = Date.now();
         this.scoreSaved = false;
@@ -989,7 +971,6 @@ const Game = {
         this.setSaveState("");
         document.getElementById('screen-start').classList.add('hidden');
         document.getElementById('screen-result').classList.add('hidden');
-        document.getElementById('fever-bar').classList.remove('hidden');
         this.updateHud();
         this.layout();
         if(this.timer) clearInterval(this.timer);
@@ -1002,8 +983,6 @@ const Game = {
 
     end() {
         this.active = false; clearInterval(this.timer);
-        this.fever = 0; this.feverUntil = 0;
-        document.getElementById('fever-bar').classList.add('hidden');
         this.updateHud();
         const myBest = this.getLocalBest();
         const isNewBest = this.validateRankSave() === "OK" && this.score > myBest;
@@ -1090,28 +1069,17 @@ const Game = {
     check() {
         const sel = this.getSel();
         if(sel.sum === 10 && sel.items.length) {
-            const now = performance.now();
-            const feverOn = this.isFeverActive(now);
-            const feverBefore = this.fever;
-            const points = sel.items.length * 10 * (feverOn ? 3 : 1);
+            const points = scoreForApples(sel.items.length);
             this.score += points;
             this.cleared += sel.items.length;
-            if(!feverOn) this.fever = Math.min(100, this.fever + 12);
             sel.items.forEach(p => this.grid[p.r][p.c].removed = true);
-            this.spawnEffect(feverOn ? `+${points} x3` : `+${points}`, sel.center.x, sel.center.y, feverOn ? '#f4b63a' : '#2477ff');
-            if(!feverOn && feverBefore < 100 && this.fever >= 100) {
-                this.activateFever(now);
-                this.spawnEffect("피버 준비", sel.center.x, sel.center.y - 66, '#f4b63a');
-                this.playSound("fever");
-            } else {
-                this.playSound("hit");
-            }
-            this.spawnBurst(sel.center.x, sel.center.y, feverOn);
+            this.spawnEffect(`+${points}`, sel.center.x, sel.center.y, '#2477ff');
+            this.playSound("hit");
+            this.spawnBurst(sel.center.x, sel.center.y);
             this.flashBoard('hit');
             this.haptic("hit");
             setTimeout(() => this.ensureBoard(), 320);
         } else {
-            if(!this.isFeverActive()) this.fever = Math.max(0, this.fever - 5);
             if(sel.items.length) {
                 this.flashBoard('miss');
                 this.haptic("miss");
@@ -1145,24 +1113,24 @@ const Game = {
         this.effects.push({ text, x, y, color, life: 42 });
     },
 
-    spawnBurst(x, y, feverOn) {
-        const colors = feverOn ? ['#f4b63a', '#f04d3f', '#2477ff', '#ffffff'] : ['#f04d3f', '#f4b63a', '#2f9d67'];
-        const count = feverOn ? 22 : 12;
+    spawnBurst(x, y) {
+        const colors = ['#f04d3f', '#f4b63a', '#2f9d67'];
+        const count = 12;
         for(let i = 0; i < count; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const speed = (feverOn ? 2.4 : 1.8) + Math.random() * (feverOn ? 3.8 : 2.8);
+            const speed = 1.8 + Math.random() * 2.8;
             this.particles.push({
                 x, y,
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed - 0.6,
                 color: colors[i % colors.length],
-                life: (feverOn ? 36 : 28) + Math.random() * 18,
-                size: (feverOn ? 3 : 2) + Math.random() * 3,
+                life: 28 + Math.random() * 18,
+                size: 2 + Math.random() * 3,
             });
         }
     },
 
-    drawApple(apple, selected, fevering) {
+    drawApple(apple, selected) {
         const ctx = this.ctx;
         const drawBodyPath = () => {
             ctx.beginPath();
@@ -1188,7 +1156,7 @@ const Game = {
         ctx.fillStyle = '#744820';
         ctx.fillRect(-2, -21, 4, 9);
 
-        ctx.fillStyle = fevering ? '#44d96f' : '#1fa84f';
+        ctx.fillStyle = '#1fa84f';
         ctx.beginPath();
         ctx.ellipse(7, -18, 6, 3.5, -0.55, 0, Math.PI * 2);
         ctx.fill();
@@ -1197,13 +1165,13 @@ const Game = {
         ctx.stroke();
 
         const appleFill = ctx.createRadialGradient(-8, -11, 4, 3, 4, 22);
-        appleFill.addColorStop(0, fevering ? '#fff06f' : '#ff8a57');
-        appleFill.addColorStop(0.48, fevering ? `hsl(${Date.now() / 5 % 360}, 82%, 58%)` : '#ff3f1f');
-        appleFill.addColorStop(1, fevering ? '#f04d3f' : '#c92b16');
+        appleFill.addColorStop(0, '#ff8a57');
+        appleFill.addColorStop(0.48, '#ff3f1f');
+        appleFill.addColorStop(1, '#c92b16');
 
-        ctx.shadowColor = fevering ? 'rgba(244, 182, 58, 0.95)' : 'rgba(92, 30, 12, 0.24)';
-        ctx.shadowBlur = fevering ? 16 : 0;
-        ctx.shadowOffsetY = fevering ? 0 : 3;
+        ctx.shadowColor = 'rgba(92, 30, 12, 0.24)';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 3;
         drawBodyPath();
         ctx.fillStyle = appleFill;
         ctx.fill();
@@ -1224,14 +1192,19 @@ const Game = {
         ctx.ellipse(7, 1, 3.5, 9, -0.2, 0, Math.PI * 2);
         ctx.fill();
 
+        ctx.beginPath();
+        ctx.arc(0, 3, 12.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 253, 235, 0.98)';
+        ctx.fill();
+        ctx.strokeStyle = selected ? '#ffd744' : 'rgba(99, 31, 17, 0.52)';
+        ctx.lineWidth = selected ? 2.5 : 1.5;
+        ctx.stroke();
+
         ctx.font = "900 20px Montserrat, 'Noto Sans KR'";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.lineJoin = "round";
-        ctx.strokeStyle = 'rgba(91, 22, 9, 0.58)';
-        ctx.lineWidth = 4;
-        ctx.strokeText(apple.val, 0, 3);
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = '#3a2419';
         ctx.fillText(apple.val, 0, 3);
         ctx.restore();
     },
@@ -1302,29 +1275,6 @@ const Game = {
         ctx.restore();
     },
 
-    drawFeverBadge() {
-        const ctx = this.ctx;
-        const boardW = COLS * CELL + PAD * 2;
-        const x = boardW / 2;
-        const y = 44;
-        const w = 118;
-        const h = 30;
-        ctx.save();
-        ctx.globalAlpha = 0.9;
-        this.drawRoundRect(ctx, x - w / 2, y - h / 2, w, h, 15);
-        ctx.fillStyle = 'rgba(255, 252, 230, 0.92)';
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(244, 182, 58, 0.72)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.fillStyle = '#c97c09';
-        ctx.font = "900 18px Montserrat, 'Noto Sans KR'";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("피버 x3", x, y + 1);
-        ctx.restore();
-    },
-
     flashBoard(type) {
         const wrap = document.getElementById('stage-wrap');
         wrap.classList.remove(type);
@@ -1344,11 +1294,11 @@ const Game = {
         const boardW = COLS * CELL + PAD * 2;
         const boardH = ROWS * CELL + PAD * 2;
         this.ctx.save();
-        this.ctx.fillStyle = '#efffe6';
+        this.ctx.fillStyle = '#f8fff3';
         this.ctx.fillRect(0, 0, boardW, boardH);
         for(let r = 0; r < ROWS; r++) {
             for(let c = 0; c < COLS; c++) {
-                this.ctx.fillStyle = (r + c) % 2 ? '#efffe6' : '#d8f7c7';
+                this.ctx.fillStyle = (r + c) % 2 ? '#f8fff3' : '#eaf8e2';
                 this.ctx.fillRect(PAD + c * CELL, PAD + r * CELL, CELL, CELL);
             }
         }
@@ -1371,18 +1321,6 @@ const Game = {
         this.ctx.restore();
 
         const now = performance.now();
-        const fevering = this.isFeverActive(now);
-        if(fevering) {
-            const remaining = Math.max(0, this.feverUntil - now);
-            this.fever = (remaining / FEVER_DURATION_MS) * 100;
-        } else if(this.feverUntil) {
-            this.feverUntil = 0;
-            this.fever = 0;
-        }
-        document.body.classList.toggle('fevering', fevering);
-        document.getElementById('stage-wrap').classList.toggle('fevering', fevering);
-        document.getElementById('fever-bar').classList.toggle('fever-ready', fevering);
-        document.getElementById('fever-fill').style.width = `${Math.max(0, Math.min(100, this.fever))}%`;
         const selItems = this.dragging ? this.getSel().items : [];
         const hintItems = this.tutorialHint && now - this.tutorialHint.startedAt <= this.tutorialHint.duration
             ? this.tutorialHint.items
@@ -1398,7 +1336,7 @@ const Game = {
                     this.ctx.translate(c*CELL + CELL/2 + PAD, r*CELL + CELL/2 + PAD);
                     this.ctx.scale(a.scale, a.scale);
                     const selected = selItems.some(s=>s.r===r && s.c===c) || hintItems.some(s=>s.r===r && s.c===c);
-                    this.drawApple(a, selected, fevering);
+                    this.drawApple(a, selected);
                     this.ctx.restore();
                 }
             }
@@ -1441,7 +1379,6 @@ const Game = {
                 }
             }
         }
-        if(fevering) this.drawFeverBadge();
         this.effects = this.effects.filter(effect => effect.life > 0);
         this.effects.forEach((effect) => {
             this.ctx.save();
