@@ -4,13 +4,17 @@
 
 실제 게임은 한 파일 안에 HTML, CSS, JavaScript가 모두 들어있는 구조입니다.
 
+> 현재 운영 빌드는 모바일 게임성 검증을 위해 `ONLINE_RANKING_ENABLED = false`로 실행됩니다. 아래 Firebase 장은 온라인 랭킹을 다시 활성화할 때 참고할 보존 설계입니다.
+
+> 효과음은 외부 음원 파일 없이 Web Audio API로 합성합니다. 기본값은 OFF이며, 사용자가 소리를 켠 뒤 시작·정답·실패·섞기·마지막 5초·종료·신기록을 서로 다른 짧은 음으로 안내합니다.
+
 ```txt
 index.html
 ├─ <head>
-│  ├─ Firebase SDK 로드
+│  ├─ 게임 규칙 로드
 │  └─ CSS 스타일
 ├─ <body>
-│  ├─ 모바일 세로 안내 화면
+│  ├─ 모바일 가로 안내 화면
 │  ├─ 게임 HUD
 │  ├─ canvas 게임판
 │  ├─ 시작 화면
@@ -60,13 +64,15 @@ const db = firebase.database();
 ## 2. 게임 기본 상수
 
 ```js
-const ROWS = 10;
-const COLS = 17;
+const MOBILE_BOARD = { rows: 12, cols: 6 };
+const DESKTOP_BOARD = { rows: 6, cols: 12 };
+let ROWS = MOBILE_BOARD.rows;
+let COLS = MOBILE_BOARD.cols;
 const CELL = 52;
-const PAD = 25;
-const DEFAULT_TIME = 120;
+const PAD = 16;
+const DEFAULT_TIME = 60;
 const MAX_NICK = 12;
-const LOW_APPLE_LIMIT = 18;
+const LOW_APPLE_LIMIT = 8;
 
 const MAX_RANK_SCORE = 999999;
 const SAVE_COOLDOWN_MS = 8000;
@@ -74,7 +80,8 @@ const SAVE_COOLDOWN_MS = 8000;
 
 역할:
 
-- `ROWS`, `COLS`: 사과판 행/열 개수
+- `MOBILE_BOARD`, `DESKTOP_BOARD`: 화면 환경별 행/열 구성
+- `ROWS`, `COLS`: 현재 화면에서 실제 사용하는 행/열 개수
 - `CELL`: 사과 하나가 차지하는 칸 크기
 - `PAD`: 캔버스 안쪽 여백
 - `DEFAULT_TIME`: 기본 제한 시간
@@ -641,37 +648,31 @@ const points = sel.items.length
 
 ---
 
-## 20. 모바일 레이아웃
+## 20. 모바일 세로 전체화면 레이아웃
 
 ```css
-@media (orientation: landscape) and (pointer: coarse) {
-    #game-container {
-        width: 100vw;
-        max-width: none;
-        padding: 6px 8px 0;
-    }
-
-    canvas {
-        max-width: none;
-        max-height: none;
-        border-radius: 9px;
+@media (max-width: 520px) {
+    #stage-wrap {
+        --stage-pad-top: 8px;
+        --stage-pad-x: 8px;
+        --stage-pad-bottom: 20px;
     }
 }
 ```
 
 뜻:
 
-- `orientation: landscape`: 가로 화면
-- `pointer: coarse`: 손가락 터치 기기
-
-즉, 휴대폰 가로 화면에서만 적용됩니다.
+- 세로형 6 × 12 게임판으로 화면 높이와 사과 크기를 함께 확보
+- HUD 높이와 프레임 여백을 줄여 게임판에 세로 공간을 우선 배정
+- 시작 버튼의 사용자 동작에서 전체화면과 세로 방향 고정을 요청
+- 데스크톱에서는 같은 72개 사과를 12 × 6으로 바꾸고 HUD를 왼쪽에 배치
 
 ---
 
-## 21. 모바일 세로 안내
+## 21. 모바일 가로 안내
 
 ```css
-@media (orientation: portrait) and (pointer: coarse) and (max-width: 760px) {
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
     #rotate-notice {
         display: flex;
     }
@@ -682,7 +683,7 @@ const points = sel.items.length
 }
 ```
 
-휴대폰 세로 화면에서는 게임을 숨기고 안내만 보여줍니다.
+낮은 휴대폰 가로 화면에서는 세로 모드 전환 안내를 보여줍니다.
 
 ---
 
@@ -720,27 +721,21 @@ layout() {
     const baseW = COLS * CELL + PAD * 2;
     const baseH = ROWS * CELL + PAD * 2;
 
-    if(this.isDesktopWide()) {
-        const viewport = window.visualViewport || {
-            width: window.innerWidth,
-            height: window.innerHeight
-        };
-
-        const availableW = Math.max(760, Math.min(1220, viewport.width - 80));
-        const availableH = Math.max(460, viewport.height - headerH - 112);
-        const scale = Math.min(availableW / baseW, availableH / baseH, 1.28);
-
-        this.canvas.style.width = `${Math.floor(baseW * scale)}px`;
-        return;
-    }
+    const viewport = window.visualViewport || {
+        width: window.innerWidth,
+        height: window.innerHeight
+    };
+    const availableW = Math.max(280, Math.min(510, viewport.width - 20));
+    const availableH = Math.max(400, viewport.height - headerH - 42);
+    const scale = Math.min(availableW / baseW, availableH / baseH, 1);
+    this.canvas.style.width = `${Math.floor(baseW * scale)}px`;
 }
 ```
 
 역할:
 
-- PC에서는 화면 크기에 맞춰 캔버스 확대
-- 너무 커지지 않게 최대 배율 제한
-- 높이가 낮은 노트북에서는 자동으로 줄어듦
+- 휴대폰과 PC 모두 화면 너비·높이에 맞춰 자동 축소
+- 원본보다 확대하지 않아 숫자와 드래그 판정이 안정적
 
 ---
 

@@ -15,6 +15,6 @@ test('잘못된 사과 개수는 점수에 반영하지 않는다', () => {
     assert.equal(scoreForApples(Number.NaN), 0);
 });
 
-test('새 점수 체계는 랭킹 버전 3을 사용한다', () => {
-    assert.equal(SCORE_VERSION, 3);
+test('반응형 대형 사과 게임판은 점수 버전 8을 사용한다', () => {
+    assert.equal(SCORE_VERSION, 8);
 });

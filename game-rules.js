@@ -1,5 +1,5 @@
 (function(root) {
-    const SCORE_VERSION = 3;
+    const SCORE_VERSION = 8;
 
     function scoreForApples(count) {
         if(!Number.isFinite(count) || count <= 0) return 0;

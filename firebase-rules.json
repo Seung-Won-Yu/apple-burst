@@ -4,7 +4,7 @@
       ".read": true,
       ".indexOn": ["score"],
       "$playerKey": {
-        ".write": "$playerKey.matches(/^v3_(rush|classic)_.{1,90}$/)",
+        ".write": "$playerKey.matches(/^v(3|4|5|6|7|8)_(rush|classic)_.{1,90}$/)",
         ".validate": "newData.hasChildren(['nick', 'score', 'version', 'updatedAt']) && (!data.exists() || newData.child('score').val() >= data.child('score').val())",
         "nick": {
           ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 12"
@@ -13,7 +13,7 @@
           ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 999999"
         },
         "version": {
-          ".validate": "newData.isNumber() && newData.val() == 3"
+          ".validate": "newData.isNumber() && ((newData.val() == 8 && $playerKey.matches(/^v8_/)) || (newData.val() == 7 && $playerKey.matches(/^v7_/)) || (newData.val() == 6 && $playerKey.matches(/^v6_/)) || (newData.val() == 5 && $playerKey.matches(/^v5_/)) || (newData.val() == 4 && $playerKey.matches(/^v4_/)) || (newData.val() == 3 && $playerKey.matches(/^v3_/)))"
         },
         "updatedAt": {
           ".validate": "newData.isNumber() && newData.val() >= now - 60000 && newData.val() <= now + 60000"
