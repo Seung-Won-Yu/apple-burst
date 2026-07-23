@@ -2,7 +2,7 @@
   "name": "사과 팡팡",
   "short_name": "사과팡팡",
   "description": "합계 10을 만드는 세로 전체화면 숫자 퍼즐",
-  "start_url": "./?event=ais7",
+  "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
   "display_override": ["fullscreen", "standalone"],

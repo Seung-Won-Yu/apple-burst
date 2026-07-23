@@ -3,7 +3,6 @@
 숫자가 적힌 사과를 드래그해 합계 10을 만드는 반응형 브라우저 퍼즐 게임입니다. 모바일에서는 세로 전체화면, 데스크톱에서는 가로형 게임판으로 실행됩니다.
 
 - 운영 주소: https://seung-won-yu.github.io/apple-burst/
-- 인공지능사관학교 7기 멘토매칭데이: https://seung-won-yu.github.io/apple-burst/?event=ais7
 - 현재 운영 모드: 오프라인 우선, 기기별 최고점 저장
 - 온라인 랭킹: 비활성
 
@@ -23,8 +22,8 @@
 
 게임 모드:
 
-- `60초 스피드`: 행사 링크의 기본 모드
-- `120초 클래식`: 일반 주소에서 선택 가능
+- `60초 스피드`
+- `120초 클래식`
 
 ## 반응형 설계
 
@@ -51,7 +50,7 @@
 ## 시작과 피드백
 
 - 시작 화면에서 `4 + 6 = 10` 드래그 규칙 미리보기
-- 행사 링크에서는 닉네임과 모드 선택을 생략하고 한 번에 시작
+- 시작 화면에서 60초 또는 120초 모드 선택
 - 드래그 중 현재 합계를 `현재 합 / 10`으로 표시
 - 정답, 실패, 자동 섞기를 애니메이션과 진동으로 구분
 - 점수 증가 애니메이션과 남은 시간 진행선 제공
@@ -75,19 +74,14 @@
 
 현장에서 여러 기기가 동시에 재생되는 상황을 고려해 효과음 기본값은 `OFF`입니다.
 
-## 행사 운영
+## QR 실행
 
 발표 자료:
 
-- [QR 원본](docs/ai-school-7th-qr.png)
-- [16:9 발표용 QR 슬라이드](docs/ai-school-7th-qr-slide.png)
+- [QR 원본](docs/apple-burst-qr.png)
+- [16:9 발표용 QR 슬라이드](docs/apple-burst-qr-slide.png)
 
-행사 링크 동작:
-
-- `?event=ais7` 캠페인 배지 표시
-- 60초 스피드 모드 고정
-- 닉네임 입력과 모드 선택 숨김
-- 온라인 요청 없이 바로 플레이
+QR과 README는 모두 동일한 운영 주소를 사용합니다.
 
 주소창 관련:
 
@@ -104,7 +98,7 @@ GitHub Pages
 → localStorage에 모드·효과음·기기 최고점 저장
 ```
 
-현재 `ONLINE_RANKING_ENABLED = false`이므로 Firebase SDK를 불러오거나 Realtime Database에 요청하지 않습니다. 행사에서 약 200명이 동시에 접속해도 플레이 중 데이터베이스 읽기·쓰기는 발생하지 않습니다.
+현재 `ONLINE_RANKING_ENABLED = false`이므로 Firebase SDK를 불러오거나 Realtime Database에 요청하지 않습니다. 약 200명이 동시에 접속해도 플레이 중 데이터베이스 읽기·쓰기는 발생하지 않습니다.
 
 ## 로컬 실행
 
@@ -112,8 +106,7 @@ GitHub Pages
 python3 -m http.server 4174
 ```
 
-- 일반 주소: http://localhost:4174/
-- 행사 주소: http://localhost:4174/?event=ais7
+- 실행 주소: http://localhost:4174/
 
 ## 검증
 
