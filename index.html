@@ -358,6 +358,325 @@
             .result-actions .btn { width: 100%; min-width: 0; }
             #toast { bottom: max(18px, env(safe-area-inset-bottom)); }
         }
+
+        /* Premium orchard arcade art pass */
+        :root {
+            --bg: #f3efe3;
+            --frame: #0f9a58;
+            --frame-dark: #075d3b;
+            --frame-light: #54dc8c;
+            --board: #fffaf0;
+            --board-alt: #eef7e7;
+            --ink: #173426;
+            --muted: #617267;
+            --apple: #f0442f;
+            --apple-dark: #a9231a;
+            --leaf: #138447;
+            --accent: #f58a24;
+            --gold: #f6c84c;
+            --line: rgba(7, 93, 59, 0.18);
+            --surface: rgba(255, 253, 247, 0.96);
+            --shadow: 0 7px 0 #075d3b, 0 17px 34px rgba(21, 66, 43, 0.22);
+            --radius-sm: 10px;
+            --radius-md: 16px;
+        }
+        body {
+            background:
+                radial-gradient(circle at 12% 14%, rgba(246, 200, 76, 0.19) 0 5px, transparent 6px),
+                radial-gradient(circle at 88% 78%, rgba(15, 154, 88, 0.13) 0 7px, transparent 8px),
+                radial-gradient(circle at 50% 105%, rgba(15, 154, 88, 0.10), transparent 38%),
+                linear-gradient(135deg, rgba(255,255,255,0.6), rgba(240,235,220,0.34)),
+                var(--bg);
+            background-size: 180px 180px, 220px 220px, auto, auto, auto;
+        }
+        body::before,
+        body::after {
+            content: ""; position: fixed; z-index: -1; pointer-events: none;
+            width: 250px; height: 250px; border-radius: 50%;
+            filter: blur(2px); opacity: 0.55;
+        }
+        body::before { left: -120px; top: -120px; background: rgba(246, 200, 76, 0.16); }
+        body::after { right: -130px; bottom: -130px; background: rgba(15, 154, 88, 0.13); }
+        #game-container { isolation: isolate; }
+
+        #header {
+            background: var(--surface);
+            border: 1px solid rgba(7, 93, 59, 0.22);
+            border-radius: 16px;
+            box-shadow: 0 5px 16px rgba(32, 68, 48, 0.12), inset 0 1px 0 #fff;
+        }
+        .stat { min-height: 54px; padding: 4px 8px; }
+        .stat-label {
+            color: #6b7b70; font-size: 9px; font-weight: 900;
+            letter-spacing: 0.08em;
+        }
+        .stat-value { color: #163727; letter-spacing: -0.04em; }
+        .stat + .stat,
+        .stat + .sound-toggle { border-color: rgba(7, 93, 59, 0.13); }
+        .sound-toggle { min-height: 54px; border-radius: 0 15px 15px 0; }
+        .sound-toggle .stat-value { color: var(--frame-dark); font-size: 15px; letter-spacing: -0.02em; }
+        .sound-toggle[aria-pressed="true"] { background: #e7f6e9; }
+        .time-stat::after {
+            height: 4px;
+            background: linear-gradient(90deg, #f6c84c, #f58a24 62%, #f0442f);
+        }
+
+        #stage-wrap {
+            background: linear-gradient(145deg, #20bd6c, #0a854c);
+            border: 2px solid #075d3b;
+            border-radius: 20px;
+            box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.62);
+        }
+        #stage-wrap::before {
+            content: ""; position: absolute; z-index: 2; pointer-events: none;
+            left: 18px; right: 18px; top: 2px; height: 2px;
+            border-radius: 999px; background: rgba(255,255,255,0.52);
+        }
+        #stage-wrap::after {
+            background: rgba(255,255,255,0.48);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.8), 0 1px 0 rgba(3,73,38,0.35);
+        }
+        canvas {
+            border-radius: 11px;
+            box-shadow: inset 0 0 0 1px rgba(7,93,59,0.13), 0 2px 5px rgba(3,65,35,0.25);
+        }
+
+        .overlay {
+            overflow: hidden;
+            border-radius: 11px;
+            background:
+                radial-gradient(circle at 8% 12%, rgba(246,200,76,0.16) 0 3px, transparent 4px),
+                radial-gradient(circle at 92% 84%, rgba(15,154,88,0.12) 0 4px, transparent 5px),
+                linear-gradient(145deg, rgba(255,255,255,0.76), transparent 45%),
+                #fff9ec;
+            background-size: 130px 130px, 170px 170px, auto, auto;
+        }
+        .overlay::before,
+        .overlay::after {
+            content: ""; position: absolute; z-index: 0; pointer-events: none;
+            width: 150px; height: 150px; border: 22px solid rgba(15,154,88,0.045); border-radius: 50%;
+        }
+        .overlay::before { left: -100px; top: -90px; }
+        .overlay::after { right: -105px; bottom: -100px; border-color: rgba(246,200,76,0.08); }
+        .start-hero,
+        .start-layout,
+        #screen-result > * { position: relative; z-index: 1; }
+        .brand {
+            grid-template-columns: 56px auto;
+            gap: 9px; margin-bottom: 7px;
+        }
+        .brand img {
+            width: 56px; height: 56px;
+            filter: drop-shadow(0 5px 0 rgba(99,34,19,0.18)) drop-shadow(0 9px 12px rgba(116,40,23,0.12));
+        }
+        h1 {
+            color: #27bd58;
+            font-size: clamp(38px, 7vw, 48px);
+            letter-spacing: -0.055em;
+            text-shadow:
+                -2px 0 #fff, 0 2px #fff, 2px 0 #fff, 0 -2px #fff,
+                0 5px 0 rgba(7,93,59,0.18);
+        }
+        .brand-kicker {
+            width: fit-content; margin-bottom: 5px; padding: 4px 8px;
+            border: 1px solid rgba(245,138,36,0.32); border-radius: 999px;
+            background: rgba(255,245,224,0.92); color: #a75410;
+            font-size: 9px; letter-spacing: 0.04em; text-shadow: none;
+        }
+        .tagline { color: #385044; font-size: 12px; }
+        .play-preview {
+            width: min(100%, 310px);
+            margin-top: 11px; padding: 10px 12px;
+            border: 1px solid rgba(7,93,59,0.2); border-radius: 16px;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 5px 0 rgba(7,93,59,0.08), 0 10px 22px rgba(32,68,48,0.08);
+        }
+        .preview-selection {
+            gap: 7px; padding: 7px 10px;
+            border-color: rgba(39,116,255,0.64); border-radius: 12px;
+        }
+        .preview-selection::after {
+            bottom: -10px; padding: 2px 7px;
+            border: 1px solid rgba(39,116,255,0.2); color: #2859a7;
+        }
+        .preview-apple {
+            width: 46px; height: 46px; border: 2px solid #a9231a;
+            background: radial-gradient(circle at 28% 18%, #ffae79 0 9%, #f85c3d 25%, #ef3d2e 58%, #b8241b 100%);
+            box-shadow: inset -4px -5px 0 rgba(116,24,18,0.12), 0 4px 0 rgba(111,33,19,0.18);
+        }
+        .preview-apple strong {
+            width: 26px; height: 26px;
+            background: #fff9e9; border: 1px solid rgba(93,28,17,0.32);
+            box-shadow: inset 0 -2px 0 rgba(246,200,76,0.22);
+        }
+        .preview-result { color: #e23b28; }
+        .start-layout { gap: 10px; margin-top: 12px; }
+        .start-actions { gap: 10px; }
+        .mode-picker {
+            gap: 4px; padding: 4px; border-radius: 14px;
+            background: #e9f0e7; border: 1px solid rgba(7,93,59,0.1);
+            box-sizing: border-box;
+        }
+        .mode-btn {
+            min-height: 44px; border: 1px solid transparent; border-radius: 10px;
+            background: transparent; color: #6b786f; box-shadow: none;
+        }
+        .mode-btn.active {
+            border-color: rgba(7,93,59,0.18); background: #fffdf7; color: #087445;
+            box-shadow: 0 3px 8px rgba(20,75,47,0.12), inset 0 1px 0 #fff;
+        }
+        .apple-play {
+            min-height: 60px; border: 1px solid #a9231a; border-radius: 15px;
+            background: linear-gradient(180deg, #ff6b4c, #ed3f2c);
+            box-shadow: 0 6px 0 #a9231a, 0 11px 20px rgba(150,40,25,0.18);
+            overflow: hidden; box-sizing: border-box;
+        }
+        .apple-play::before {
+            content: ""; position: absolute; left: 10%; right: 10%; top: 2px; height: 2px;
+            border-radius: 999px; background: rgba(255,255,255,0.56);
+        }
+        .apple-play::after {
+            content: ""; position: absolute; top: -20%; left: -32%; width: 24%; height: 140%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+            transform: skewX(-20deg); transition: left 320ms ease;
+        }
+        .apple-play:hover::after { left: 112%; }
+        .apple-play:hover { transform: translateY(-2px); filter: saturate(1.04); }
+        .apple-play:active { transform: translateY(4px); box-shadow: 0 2px 0 #a9231a; }
+        .apple-play img { width: 42px; height: 42px; }
+        .how-to { color: #68776e; font-size: 10px; }
+
+        #rank-container {
+            border: 1px solid rgba(7,93,59,0.15); border-radius: 15px;
+            background: rgba(247,244,233,0.86);
+            box-shadow: inset 0 1px 0 #fff;
+        }
+        .rank-title { color: #087445; }
+        .rank-meta { color: #6d796f; }
+        .local-best-card { padding: 8px 10px; border-radius: 11px; background: rgba(255,255,255,0.65); }
+        .local-best-card strong { color: #e23b28; }
+        .rank-empty { color: #56685d; }
+
+        .result-title {
+            color: #1c9f50; letter-spacing: -0.04em;
+            text-shadow: 0 4px 0 rgba(7,93,59,0.12);
+        }
+        .result-card {
+            border: 1px solid rgba(7,93,59,0.2); border-radius: 18px;
+            background: rgba(255,255,255,0.94);
+            box-shadow: 0 7px 0 rgba(7,93,59,0.08), 0 14px 26px rgba(32,68,48,0.1);
+        }
+        .result-chip { border: 1px solid rgba(7,93,59,0.09); border-radius: 11px; background: #f3f8ee; }
+        .btn { border-radius: 12px; }
+
+        @media (min-width: 900px) and (pointer: fine) {
+            #game-container { grid-template-columns: 132px minmax(0, 1fr); gap: 18px; }
+            #header {
+                width: 132px;
+                overflow: hidden; border: 2px solid #075d3b; border-radius: 18px;
+                background: #087445;
+                box-shadow: 0 7px 0 #064f33, 0 16px 28px rgba(18,63,40,0.2);
+            }
+            .hud-mark {
+                color: #075d3b; border-bottom-color: rgba(7,93,59,0.16);
+                background: #fff6df;
+            }
+            .hud-mark img { width: 48px; height: 48px; }
+            .hud-mark span { color: #087445; letter-spacing: 0.08em; }
+            .stat + .stat,
+            .stat + .sound-toggle { border-top-color: rgba(255,255,255,0.16); }
+            .stat-label { color: rgba(255,255,255,0.72); }
+            .stat-value,
+            .sound-toggle .stat-value { color: #fffdf7; }
+            .stat.warning { background: #923126; }
+            .stat.warning .stat-label { color: #ffd8c8; }
+            .stat.warning .stat-value { color: #fff; }
+            .sound-toggle { border-radius: 0 0 16px 16px; color: #fff; }
+            .sound-toggle[aria-pressed="true"] { background: rgba(255,255,255,0.12); }
+            #stage-wrap {
+                --stage-pad-top: 8px; --stage-pad-x: 8px; --stage-pad-bottom: 18px;
+                border-radius: 22px;
+            }
+            #screen-start { gap: 28px; padding: 22px 30px; }
+            .start-hero {
+                width: min(48%, 410px); padding: 20px 16px;
+                border-right: 1px solid rgba(7,93,59,0.12);
+            }
+            .start-layout { width: min(44%, 390px); margin-top: 0; gap: 11px; }
+            .brand { grid-template-columns: 64px auto; }
+            .brand img { width: 64px; height: 64px; }
+            h1 { font-size: 56px; }
+            .play-preview { margin-top: 13px; }
+        }
+
+        @media (orientation: portrait) and (max-width: 520px) {
+            #header { margin-bottom: 8px; }
+            #stage-wrap {
+                --stage-pad-top: 7px; --stage-pad-x: 5px; --stage-pad-bottom: 18px;
+                border-radius: 18px;
+            }
+            .overlay { padding: 15px 13px; }
+            .brand { grid-template-columns: 54px auto; }
+            .brand img { width: 54px; height: 54px; }
+            h1 { font-size: 42px; }
+            .start-layout { margin-top: 12px; }
+            #rank-container { max-height: min(24svh, 174px); }
+        }
+        @media (orientation: portrait) and (max-width: 520px) and (min-height: 700px) {
+            #screen-start { justify-content: center; padding-top: 24px; padding-bottom: 24px; }
+        }
+        @media (orientation: portrait) and (max-width: 360px), (max-height: 640px) {
+            .overlay { padding: 10px; }
+            .brand { grid-template-columns: 44px auto; margin-bottom: 4px; }
+            .brand img { width: 44px; height: 44px; }
+            h1 { font-size: 34px; }
+            .brand-kicker { margin-bottom: 3px; padding: 3px 7px; font-size: 8px; }
+            .tagline { font-size: 10px; }
+            .play-preview { margin-top: 7px; padding: 7px; border-radius: 12px; }
+            .preview-apple { width: 38px; height: 38px; }
+            .preview-apple strong { width: 22px; height: 22px; font-size: 14px; }
+            .start-layout { gap: 7px; margin-top: 8px; }
+            .start-actions { gap: 7px; }
+            .apple-play { min-height: 52px; }
+            #rank-container { max-height: 150px; padding: 8px; }
+        }
+        @media (orientation: portrait) and (max-height: 560px) {
+            #header { margin-bottom: 4px; }
+            .stat,
+            .sound-toggle { min-height: 44px; }
+            .stat-value { font-size: 22px; }
+            .sound-toggle .stat-value { font-size: 14px; }
+            #stage-wrap {
+                --stage-pad-top: 5px;
+                --stage-pad-x: 4px;
+                --stage-pad-bottom: 14px;
+            }
+            #screen-start { justify-content: center; padding: 6px; }
+            .brand { grid-template-columns: 36px auto; gap: 6px; margin-bottom: 2px; }
+            .brand img { width: 36px; height: 36px; }
+            h1 { font-size: 28px; }
+            .brand-kicker { margin-bottom: 2px; padding: 2px 6px; font-size: 7px; }
+            .tagline { font-size: 9px; }
+            .play-preview { margin-top: 5px; padding: 5px 6px; gap: 5px; }
+            .preview-selection { gap: 4px; padding: 4px 6px; }
+            .preview-apple { width: 32px; height: 32px; }
+            .preview-apple strong { width: 19px; height: 19px; font-size: 12px; }
+            .preview-result { font-size: 11px; }
+            .preview-result strong { font-size: 18px; }
+            .start-layout { gap: 5px; margin-top: 6px; }
+            .start-actions { gap: 5px; }
+            .mode-picker { padding: 3px; }
+            .mode-btn { min-height: 40px; padding: 5px; font-size: 9px; }
+            .apple-play { min-height: 46px; padding: 4px 10px; font-size: 15px; }
+            .apple-play img { width: 32px; height: 32px; }
+            .how-to { font-size: 8px; }
+            #rank-container { max-height: 106px; padding: 6px 8px; }
+            .rank-head { margin-bottom: 2px; }
+            .rank-meta { margin-bottom: 2px; font-size: 8px; }
+            .rank-empty { min-height: 34px; padding: 5px 0; font-size: 10px; }
+            .local-best-card { min-height: 34px; padding: 3px 6px; font-size: 9px; }
+            .local-best-card strong { font-size: 18px; }
+        }
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
         }
@@ -821,8 +1140,8 @@ const Game = {
         } else {
             const headerH = header ? header.offsetHeight : 50;
             const headerGap = px(getComputedStyle(header).marginBottom);
-            const availableW = Math.max(260, Math.min(430, viewport.width - containerX - frameX));
-            const availableH = Math.max(420, viewport.height - containerY - headerH - headerGap - frameY);
+            const availableW = Math.max(1, Math.min(430, viewport.width - containerX - frameX));
+            const availableH = Math.max(1, viewport.height - containerY - headerH - headerGap - frameY);
             scale = Math.min(availableW / baseW, availableH / baseH);
         }
         const canvasW = Math.floor(baseW * scale);
@@ -1438,59 +1757,74 @@ const Game = {
         };
 
         ctx.save();
-        const appleScale = 1.08 * (selected ? 1.06 : 1);
+        const appleScale = 1.1 * (selected ? 1.07 : 1);
         ctx.scale(appleScale, appleScale);
 
-        ctx.fillStyle = 'rgba(83, 47, 15, 0.16)';
+        if(selected) {
+            const halo = ctx.createRadialGradient(0, 2, 9, 0, 2, 28);
+            halo.addColorStop(0, 'rgba(255, 229, 116, 0.5)');
+            halo.addColorStop(1, 'rgba(255, 229, 116, 0)');
+            ctx.fillStyle = halo;
+            ctx.beginPath();
+            ctx.arc(0, 2, 28, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.fillStyle = 'rgba(73, 43, 20, 0.2)';
         ctx.beginPath();
-        ctx.ellipse(0, 17, 15, 4.5, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 18, 16, 4.5, 0, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.shadowColor = 'transparent';
-        ctx.fillStyle = '#744820';
-        ctx.fillRect(-2, -21, 4, 9);
-
-        ctx.fillStyle = '#1fa84f';
-        ctx.beginPath();
-        ctx.ellipse(7, -18, 6, 3.5, -0.55, 0, Math.PI * 2);
+        ctx.fillStyle = '#68401f';
+        this.drawRoundRect(ctx, -2.2, -22, 4.4, 10, 2);
         ctx.fill();
-        ctx.strokeStyle = 'rgba(8, 104, 48, 0.28)';
+
+        const leafFill = ctx.createLinearGradient(2, -22, 13, -15);
+        leafFill.addColorStop(0, '#39b861');
+        leafFill.addColorStop(1, '#08763e');
+        ctx.fillStyle = leafFill;
+        ctx.beginPath();
+        ctx.ellipse(8, -18.5, 7, 3.8, -0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(5, 91, 46, 0.42)';
         ctx.lineWidth = 1;
         ctx.stroke();
 
         const appleFill = ctx.createRadialGradient(-8, -11, 4, 3, 4, 22);
-        appleFill.addColorStop(0, '#ff8a57');
-        appleFill.addColorStop(0.48, '#ff3f1f');
-        appleFill.addColorStop(1, '#c92b16');
+        appleFill.addColorStop(0, '#ffad7a');
+        appleFill.addColorStop(0.18, '#fb6848');
+        appleFill.addColorStop(0.58, '#ed3f2d');
+        appleFill.addColorStop(1, '#a9231a');
 
-        ctx.shadowColor = 'rgba(92, 30, 12, 0.24)';
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetY = 3;
+        ctx.shadowColor = 'rgba(92, 30, 12, 0.3)';
+        ctx.shadowBlur = 3;
+        ctx.shadowOffsetY = 4;
         drawBodyPath();
         ctx.fillStyle = appleFill;
         ctx.fill();
 
         ctx.shadowColor = 'transparent';
-        ctx.strokeStyle = selected ? '#fff2a8' : 'rgba(132, 33, 18, 0.5)';
-        ctx.lineWidth = selected ? 3 : 2;
+        ctx.strokeStyle = selected ? '#ffe173' : 'rgba(118, 28, 20, 0.68)';
+        ctx.lineWidth = selected ? 3 : 1.6;
         drawBodyPath();
         ctx.stroke();
 
-        ctx.fillStyle = 'rgba(255,255,255,0.72)';
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
         ctx.beginPath();
-        ctx.ellipse(-8, -9, 6, 3.5, -0.55, 0, Math.PI * 2);
+        ctx.ellipse(-8.5, -9.5, 6.5, 3.2, -0.58, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = 'rgba(255,255,255,0.26)';
+        ctx.fillStyle = 'rgba(255,255,255,0.18)';
         ctx.beginPath();
         ctx.ellipse(7, 1, 3.5, 9, -0.2, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.beginPath();
-        ctx.arc(0, 3, 12.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 253, 235, 0.98)';
+        ctx.arc(0, 3, 12.8, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff9e9';
         ctx.fill();
-        ctx.strokeStyle = selected ? '#ffd744' : 'rgba(99, 31, 17, 0.52)';
+        ctx.strokeStyle = selected ? '#f4bd27' : 'rgba(92, 30, 18, 0.46)';
         ctx.lineWidth = selected ? 2.5 : 1.5;
         ctx.stroke();
 
@@ -1498,7 +1832,7 @@ const Game = {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.lineJoin = "round";
-        ctx.fillStyle = '#3a2419';
+        ctx.fillStyle = '#34251b';
         ctx.fillText(apple.val, 0, 3);
         ctx.restore();
     },
@@ -1599,15 +1933,15 @@ const Game = {
         const boardW = COLS * CELL + PAD * 2;
         const boardH = ROWS * CELL + PAD * 2;
         this.ctx.save();
-        this.ctx.fillStyle = '#f8fff3';
+        this.ctx.fillStyle = '#fffaf0';
         this.ctx.fillRect(0, 0, boardW, boardH);
         for(let r = 0; r < ROWS; r++) {
             for(let c = 0; c < COLS; c++) {
-                this.ctx.fillStyle = (r + c) % 2 ? '#f8fff3' : '#eaf8e2';
+                this.ctx.fillStyle = (r + c) % 2 ? '#fffaf0' : '#eef7e7';
                 this.ctx.fillRect(PAD + c * CELL, PAD + r * CELL, CELL, CELL);
             }
         }
-        this.ctx.strokeStyle = 'rgba(5, 106, 42, 0.1)';
+        this.ctx.strokeStyle = 'rgba(7, 93, 59, 0.075)';
         this.ctx.lineWidth = 1;
         for(let c = 0; c <= COLS; c++) {
             const x = PAD + c * CELL;
