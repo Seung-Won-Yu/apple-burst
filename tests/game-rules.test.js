@@ -68,3 +68,12 @@ test('공개 게임은 행사 전용 문구 없이 하나의 기본 주소를 �
         1,
     );
 });
+
+test('결과 화면에서 같은 모드 재도전과 모드 변경을 모두 제공한다', () => {
+    const index = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+
+    assert.match(index, /id="retry-button"[^>]*>60초 다시 하기<\/button>/);
+    assert.match(index, /onclick="Game\.showLobby\(\)">모드 바꾸기<\/button>/);
+    assert.match(index, /document\.getElementById\('retry-button'\)\.innerText = `\$\{this\.modeTime\}초 다시 하기`/);
+    assert.match(index, /showLobby\(\) \{/);
+});

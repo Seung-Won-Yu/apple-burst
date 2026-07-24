@@ -234,9 +234,15 @@
         .btn { padding: 10px 26px; font-size: 17px; font-weight: 900; background: linear-gradient(#ff6a45, var(--apple)); color: white; border: 1px solid rgba(122,39,28,0.25); border-radius: 5px; cursor: pointer; margin: 4px; font-family: inherit; transition: transform 0.15s, filter 0.15s; box-shadow: 0 5px 0 rgba(122, 39, 28, 0.24); }
         .btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
         .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(122,39,28,0.2); }
-        .btn.share { background: #fff; border-color: rgba(5,169,77,0.62); color: var(--frame-dark); box-shadow: 0 5px 0 rgba(34,104,67,0.14); }
-        .result-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-        .result-actions .btn { min-width: 154px; margin: 0; }
+        .btn.lobby { background: #fff; border-color: rgba(5,169,77,0.62); color: var(--frame-dark); box-shadow: 0 4px 0 rgba(34,104,67,0.14); }
+        .btn.share { background: rgba(255,255,255,0.7); border-color: rgba(93,114,99,0.32); color: var(--muted); box-shadow: none; }
+        .result-actions {
+            display: flex; flex-direction: column; justify-content: center; gap: 8px;
+            width: min(88%, 460px);
+        }
+        .result-actions .btn { width: 100%; min-height: 48px; min-width: 0; margin: 0; box-sizing: border-box; }
+        .result-secondary-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
+        .result-secondary-actions .btn { padding-left: 12px; padding-right: 12px; font-size: 14px; }
 
         /* 랭킹 리스트 */
         #rank-container { width: 100%; max-height: min(34svh, 214px); overflow-y: auto; background: rgba(255,255,255,0.84); border: 1px solid var(--line); border-radius: 6px; padding: 10px; font-size: 13px; box-sizing: border-box; }
@@ -356,7 +362,6 @@
             .rank-item { padding: 5px 2px; }
             .result-card { width: min(92%, 390px); padding: 13px; }
             .result-actions { width: min(92%, 390px); }
-            .result-actions .btn { width: 100%; min-width: 0; }
             #toast { bottom: max(18px, env(safe-area-inset-bottom)); }
         }
 
@@ -963,8 +968,11 @@
             </div>
             <div id="save-state" class="save-state" role="status" aria-live="polite"></div>
             <div class="result-actions">
-                <button type="button" class="btn share" onclick="Game.share()">친구에게 도전장</button>
-                <button type="button" class="btn" onclick="Game.start()">다시 하기</button>
+                <button type="button" id="retry-button" class="btn" onclick="Game.start()">60초 다시 하기</button>
+                <div class="result-secondary-actions">
+                    <button type="button" class="btn lobby" onclick="Game.showLobby()">모드 바꾸기</button>
+                    <button type="button" class="btn share" onclick="Game.share()">도전장 공유</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1812,6 +1820,21 @@ const Game = {
         }, 200);
     },
 
+    showLobby() {
+        this.active = false;
+        if(this.timer) clearInterval(this.timer);
+        this.hideComboFeedback();
+        document.body.dataset.screen = "start";
+        document.getElementById('screen-result').classList.add('hidden');
+        document.getElementById('screen-start').classList.remove('hidden');
+        this.time = this.modeTime;
+        this.updateHud();
+        this.renderRanks(this.latestRanks);
+        this.layout();
+        const selectedMode = document.getElementById(this.mode === "rush" ? "mode-rush" : "mode-classic");
+        requestAnimationFrame(() => selectedMode?.focus({ preventScroll: true }));
+    },
+
     end() {
         if(!this.active) return;
         this.active = false; clearInterval(this.timer);
@@ -1831,6 +1854,7 @@ const Game = {
         document.getElementById('res-combo').innerText = this.maxCombo.toLocaleString();
         document.getElementById('res-big-pops').innerText = `${this.bigPops.toLocaleString()}회`;
         document.getElementById('res-biggest-pop').innerText = `${this.biggestPop.toLocaleString()}개`;
+        document.getElementById('retry-button').innerText = `${this.modeTime}초 다시 하기`;
         this.saveScore();
         const resultScreen = document.getElementById('screen-result');
         resultScreen.classList.remove('hidden');
