@@ -144,6 +144,8 @@
 
         .start-hero { width: min(100%, 360px); display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; }
         .start-layout { width: min(100%, 360px); display: flex; flex-direction: column; align-items: stretch; gap: 7px; margin-top: 7px; }
+        .lobby-topline,
+        .lobby-action-head { display: none; }
         .brand { display: inline-grid; grid-template-columns: 46px auto; align-items: center; gap: 7px; margin-bottom: 5px; }
         .brand img { width: 46px; height: 46px; object-fit: contain; filter: drop-shadow(0 4px 0 rgba(88,32,12,0.18)); }
         h1 { font-size: clamp(32px, 6vw, 42px); margin: 0; color: #35c83f; line-height: 0.9; text-shadow: -3px 0 #fff, 0 3px #fff, 3px 0 #fff, 0 -3px #fff, 0 6px 0 rgba(0,120,46,0.2); }
@@ -334,7 +336,11 @@
         }
         @media (orientation: portrait) and (max-width: 520px) {
             body { align-items: flex-start; }
-            #stage-wrap { --stage-pad-top: 6px; --stage-pad-x: 4px; --stage-pad-bottom: 18px; border-radius: 14px; }
+            #game-container { width: 100%; max-width: 440px; }
+            #stage-wrap {
+                --stage-pad-top: 6px; --stage-pad-x: 4px; --stage-pad-bottom: 18px;
+                width: 100%; max-width: 440px; border-radius: 14px; box-sizing: border-box;
+            }
             #stage-wrap::after { left: 30px; right: 30px; bottom: 7px; height: 6px; }
             .overlay { justify-content: flex-start; padding: 12px; overflow-y: auto; }
             h1 { font-size: 36px; }
@@ -629,32 +635,155 @@
                 --stage-pad-top: 0px;
                 --stage-pad-x: 0px;
                 --stage-pad-bottom: 0px;
-                height: min(74svh, 500px);
-                border: 1px solid rgba(7,93,59,0.18);
-                border-radius: 24px;
-                background: #f4efe3;
-                box-shadow: 0 18px 42px rgba(32,68,48,0.12);
+                width: min(100%, 1082px);
+                height: min(76svh, 560px);
+                min-height: 420px;
+                border: 2px solid #0c6040;
+                border-radius: 22px;
+                background: #fffaf0;
+                box-shadow: 0 18px 38px rgba(26,72,46,0.16);
             }
             body[data-screen="start"] #stage-wrap::before { display: none; }
             body[data-screen="start"] #screen-start {
-                align-items: center; gap: 24px; padding: 24px;
-                border-radius: 23px; background: #f4efe3;
+                display: grid;
+                grid-template-columns: minmax(0, 1.12fr) minmax(340px, 0.88fr);
+                align-items: stretch; gap: 0; padding: 0;
+                border-radius: 19px; background: #fffaf0;
+                text-align: left;
             }
             body[data-screen="start"] .start-hero,
             body[data-screen="start"] .start-layout {
-                align-self: center; justify-content: center; min-height: 340px;
-                box-sizing: border-box; border: 1px solid rgba(7,93,59,0.13);
-                border-radius: 18px; box-shadow: 0 8px 18px rgba(32,68,48,0.06);
+                align-self: stretch; justify-content: center; min-height: 0;
+                width: auto; margin: 0; box-sizing: border-box;
+                border: 0; border-radius: 0; box-shadow: none;
             }
             body[data-screen="start"] .start-hero {
-                width: min(52%, 500px); padding: 24px;
-                border-right: 1px solid rgba(7,93,59,0.13);
-                background: #fff9eb;
+                position: relative; align-items: flex-start; overflow: hidden;
+                padding: clamp(38px, 5vw, 58px);
+                border-right: 1px solid rgba(7,93,59,0.2);
+                background-color: #eef7e7;
+                background-image:
+                    linear-gradient(rgba(7,93,59,0.055) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(7,93,59,0.055) 1px, transparent 1px);
+                background-size: 54px 54px;
             }
             body[data-screen="start"] .start-layout {
-                width: min(43%, 430px); padding: 20px;
-                background: rgba(255,255,255,0.82);
+                padding: clamp(34px, 4vw, 48px);
+                background: #fffaf0;
             }
+            body[data-screen="start"] .lobby-topline {
+                position: absolute; top: 24px; left: clamp(38px, 5vw, 58px); right: clamp(38px, 5vw, 58px);
+                display: flex; align-items: center; justify-content: space-between; gap: 12px;
+                color: #356b4e; font-size: 9px; letter-spacing: 0.14em;
+            }
+            body[data-screen="start"] .lobby-topline span:last-child {
+                color: #fff; padding: 5px 9px; border-radius: 999px;
+                background: #168b53; letter-spacing: 0.05em;
+            }
+            body[data-screen="start"] .brand {
+                grid-template-columns: 86px auto; gap: 16px; margin: 0 0 12px;
+            }
+            body[data-screen="start"] .brand img {
+                width: 86px; height: 86px;
+                filter: drop-shadow(0 7px 7px rgba(99,34,19,0.17));
+            }
+            body[data-screen="start"] h1 {
+                font-size: clamp(58px, 5.1vw, 74px); line-height: 0.88;
+            }
+            body[data-screen="start"] .brand-kicker {
+                margin-bottom: 8px; padding: 5px 10px; font-size: 10px;
+                background: #fff8e8;
+            }
+            body[data-screen="start"] .tagline {
+                width: 100%; color: #294b39; font-size: clamp(13px, 1.3vw, 16px);
+            }
+            body[data-screen="start"] .play-preview {
+                width: min(100%, 470px); min-height: 142px;
+                justify-content: flex-start; gap: clamp(14px, 2vw, 24px);
+                margin-top: 24px; padding: 22px 26px;
+                border: 2px solid rgba(7,93,59,0.24); border-radius: 14px;
+                background: rgba(255,253,247,0.92);
+                box-shadow: 0 8px 0 rgba(7,93,59,0.08);
+            }
+            body[data-screen="start"] .preview-selection {
+                gap: 10px; padding: 10px 14px; border-width: 2px;
+            }
+            body[data-screen="start"] .preview-selection::after {
+                content: "드래그해서 선택"; bottom: -11px; font-size: 9px;
+            }
+            body[data-screen="start"] .preview-apple {
+                width: 64px; height: 64px;
+            }
+            body[data-screen="start"] .preview-apple strong {
+                width: 37px; height: 37px; font-size: 23px;
+            }
+            body[data-screen="start"] .preview-result {
+                font-size: 17px;
+            }
+            body[data-screen="start"] .preview-result strong {
+                font-size: 34px;
+            }
+            body[data-screen="start"] .lobby-action-head {
+                display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+                margin-bottom: 18px;
+            }
+            body[data-screen="start"] .lobby-action-head span {
+                color: #b46520; font-size: 9px; letter-spacing: 0.14em;
+            }
+            body[data-screen="start"] .lobby-action-head strong {
+                color: #173426; font-size: clamp(19px, 2vw, 24px); line-height: 1.25;
+                letter-spacing: -0.04em;
+            }
+            body[data-screen="start"] .start-actions { gap: 12px; }
+            body[data-screen="start"] .mode-picker {
+                gap: 6px; padding: 5px; border-radius: 13px;
+                background: #e6eee3;
+            }
+            body[data-screen="start"] .mode-btn {
+                min-height: 52px; font-size: 12px;
+            }
+            body[data-screen="start"] .apple-play {
+                min-height: 72px; border-radius: 13px; font-size: 21px;
+                box-shadow: 0 6px 0 rgba(150,40,25,0.2);
+            }
+            body[data-screen="start"] .apple-play img {
+                width: 48px; height: 48px;
+            }
+            body[data-screen="start"] .how-to {
+                margin: 0; font-size: 10px; text-align: center;
+            }
+            body[data-screen="start"] #rank-container {
+                max-height: none; margin-top: 8px; padding: 18px 0 0;
+                border: 0; border-top: 1px solid rgba(7,93,59,0.18);
+                border-radius: 0; background: transparent;
+            }
+            body[data-screen="start"] .rank-head { margin-bottom: 5px; }
+            body[data-screen="start"] .rank-title { font-size: 11px; }
+            body[data-screen="start"] .rank-meta { margin-bottom: 4px; font-size: 9px; }
+            body[data-screen="start"] .local-best-card {
+                min-height: 34px; padding: 4px 0; border-radius: 0; background: transparent;
+            }
+            body[data-screen="start"] .local-best-card strong { font-size: 22px; }
+            body[data-screen="start"] .rank-empty {
+                min-height: 30px; place-items: start; padding: 5px 0; font-size: 11px;
+            }
+            body[data-screen="start"] #nick-setting { display: none; }
+        }
+        @media (min-width: 900px) and (max-height: 620px) and (pointer: fine) {
+            body[data-screen="start"] #stage-wrap { height: min(82svh, 470px); min-height: 390px; }
+            body[data-screen="start"] .start-hero { padding: 34px 40px; }
+            body[data-screen="start"] .lobby-topline { top: 17px; left: 40px; right: 40px; }
+            body[data-screen="start"] .brand { grid-template-columns: 66px auto; gap: 12px; margin-bottom: 8px; }
+            body[data-screen="start"] .brand img { width: 66px; height: 66px; }
+            body[data-screen="start"] h1 { font-size: 54px; }
+            body[data-screen="start"] .play-preview { min-height: 112px; margin-top: 16px; padding: 14px 18px; }
+            body[data-screen="start"] .preview-apple { width: 50px; height: 50px; }
+            body[data-screen="start"] .preview-apple strong { width: 29px; height: 29px; font-size: 18px; }
+            body[data-screen="start"] .start-layout { padding: 26px 32px; }
+            body[data-screen="start"] .lobby-action-head { margin-bottom: 10px; }
+            body[data-screen="start"] .mode-btn { min-height: 44px; }
+            body[data-screen="start"] .apple-play { min-height: 60px; }
+            body[data-screen="start"] #rank-container { padding-top: 12px; }
         }
 
         @media (orientation: portrait) and (max-width: 520px) {
@@ -759,6 +888,10 @@
 
         <div id="screen-start" class="overlay">
             <div class="start-hero">
+                <div class="lobby-topline" aria-hidden="true">
+                    <span>APPLE BURST</span>
+                    <span>DESKTOP · 14 × 7</span>
+                </div>
                 <div class="brand" aria-label="사과 팡팡">
                     <img src="assets/apple-mascot.png" alt="" aria-hidden="true">
                     <div>
@@ -778,6 +911,10 @@
             </div>
 
             <div class="start-layout">
+                <div class="lobby-action-head">
+                    <span>GAME MODE</span>
+                    <strong>모드를 고르고<br>바로 시작하세요</strong>
+                </div>
                 <div id="nick-setting" class="settings-row">
                     <label class="sr-only" for="nick-input">닉네임</label>
                     <input type="text" id="nick-input" placeholder="최고 기록에 표시할 닉네임" maxlength="12" autocomplete="off" spellcheck="false" aria-describedby="nick-help">
