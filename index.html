@@ -258,50 +258,45 @@
         #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
         @media (min-width: 900px) and (pointer: fine) {
-            body {
-                background:
-                    radial-gradient(circle at 12% 18%, rgba(255, 138, 28, 0.10) 0 4px, transparent 5px),
-                    radial-gradient(circle at 88% 74%, rgba(9, 201, 93, 0.11) 0 5px, transparent 6px),
-                    linear-gradient(45deg, rgba(9,201,93,0.045) 25%, transparent 25%),
-                    linear-gradient(-45deg, rgba(9,201,93,0.045) 25%, transparent 25%),
-                    linear-gradient(45deg, transparent 75%, rgba(9,201,93,0.045) 75%),
-                    linear-gradient(-45deg, transparent 75%, rgba(9,201,93,0.045) 75%),
-                    var(--bg);
-                background-size: 180px 180px, 220px 220px, 24px 24px, 24px 24px, 24px 24px, 24px 24px;
-            }
             #game-container {
-                width: min(96vw, 1180px); display: grid; grid-template-columns: 126px minmax(0, 1fr);
-                align-items: stretch; gap: 14px; padding: 12px;
+                width: min(98vw, 1440px); display: flex; flex-direction: column;
+                align-items: center; gap: 12px; padding: 12px 16px;
             }
             #header {
-                width: 126px; height: 100%; grid-template-columns: 1fr; grid-template-rows: 92px repeat(3, 1fr);
-                margin: 0; border-radius: 14px; box-shadow: 0 7px 0 rgba(5,106,42,0.10);
+                width: min(100%, var(--chrome-width)); height: 68px;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                grid-template-rows: 1fr;
+                margin: 0; border-radius: 16px;
             }
             .hud-mark {
-                display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-                padding: 8px 5px; color: var(--frame-dark); border-bottom: 1px solid rgba(5,106,42,0.16);
-                background: rgba(232,255,217,0.74);
+                display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px;
+                min-width: 0; padding: 7px 16px; color: var(--frame-dark);
+                border-right: 1px solid rgba(5,106,42,0.16);
             }
-            .hud-mark img { width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 3px 0 rgba(88,32,12,0.14)); }
-            .hud-mark span { font-size: 9px; line-height: 1.1; }
-            .stat, .sound-toggle { min-height: 0; padding: 8px 5px; }
-            .stat + .stat, .stat + .sound-toggle { border-left: 0; border-top: 1px solid rgba(5,106,42,0.16); }
-            .stat-label { font-size: 11px; }
-            .stat-value { font-size: 38px; }
-            .sound-toggle .stat-value { font-size: 18px; }
-            #stage-wrap { align-self: center; --stage-pad-top: 7px; --stage-pad-x: 7px; --stage-pad-bottom: 17px; border-radius: 18px; }
-            #stage-wrap::after { bottom: 6px; height: 6px; }
-            canvas { width: min(100%, 760px); }
+            .hud-mark img { width: 46px; height: 46px; object-fit: contain; }
+            .hud-mark span { font-size: 14px; line-height: 1.05; white-space: nowrap; }
+            .stat, .sound-toggle { min-height: 0; padding: 7px 12px; }
+            .stat + .stat,
+            .stat + .sound-toggle { border-top: 0; border-left: 1px solid rgba(5,106,42,0.16); }
+            .stat-label { font-size: 10px; }
+            .stat-value { font-size: 32px; }
+            .sound-toggle .stat-value { font-size: 17px; }
+            #stage-wrap {
+                align-self: center;
+                --stage-pad-top: 8px; --stage-pad-x: 8px; --stage-pad-bottom: 8px;
+                border-radius: 20px;
+            }
+            canvas { width: min(100%, 1344px); }
             #screen-start { flex-direction: row; justify-content: center; align-items: center; gap: 18px; padding: 18px 24px; overflow: hidden; }
-            .start-hero { width: min(46%, 390px); }
-            .start-layout { width: min(46%, 390px); margin-top: 0; gap: 8px; }
-            .brand { grid-template-columns: 56px auto; gap: 9px; }
-            .brand img { width: 56px; height: 56px; }
-            h1 { font-size: 52px; }
+            .start-hero { width: min(48%, 480px); }
+            .start-layout { width: min(44%, 430px); margin-top: 0; gap: 9px; }
+            .brand { grid-template-columns: 60px auto; gap: 10px; }
+            .brand img { width: 60px; height: 60px; }
+            h1 { font-size: 58px; }
             .brand-kicker { font-size: 12px; }
-            .tagline { font-size: 12px; }
-            .play-preview { width: min(100%, 330px); margin-top: 10px; }
-            #rank-container { max-height: 132px; padding: 8px; }
+            .tagline { font-size: 13px; }
+            .play-preview { width: min(100%, 360px); margin-top: 12px; }
+            #rank-container { max-height: 144px; padding: 9px; }
             .rank-head { margin-bottom: 4px; }
             .rank-meta { margin-bottom: 3px; font-size: 9px; }
             .local-best-card { min-height: 36px; padding: 3px; }
@@ -563,43 +558,69 @@
         }
 
         @media (min-width: 900px) and (pointer: fine) {
-            #game-container { grid-template-columns: 132px minmax(0, 1fr); gap: 18px; }
+            #game-container { gap: 12px; }
             #header {
-                width: 132px;
-                overflow: hidden; border: 2px solid #075d3b; border-radius: 18px;
-                background: #087445;
-                box-shadow: 0 10px 24px rgba(18,63,40,0.16);
+                overflow: hidden; border: 1px solid rgba(7,93,59,0.24); border-radius: 16px;
+                background: rgba(255,253,247,0.98);
+                box-shadow: 0 8px 20px rgba(32,68,48,0.11);
             }
             .hud-mark {
-                color: #075d3b; border-bottom-color: rgba(7,93,59,0.16);
-                background: #fff6df;
+                color: #087445; border-right-color: rgba(7,93,59,0.14);
+                background: #fff8e8;
             }
-            .hud-mark img { width: 48px; height: 48px; }
-            .hud-mark span { color: #087445; letter-spacing: 0.08em; }
+            .hud-mark img { width: 46px; height: 46px; }
+            .hud-mark span { color: #087445; letter-spacing: -0.03em; }
             .stat + .stat,
-            .stat + .sound-toggle { border-top-color: rgba(255,255,255,0.16); }
-            .stat-label { color: rgba(255,255,255,0.72); }
+            .stat + .sound-toggle { border-left-color: rgba(7,93,59,0.12); }
+            .stat-label { color: #6b7b70; }
             .stat-value,
-            .sound-toggle .stat-value { color: #fffdf7; }
-            .stat.warning { background: #923126; }
-            .stat.warning .stat-label { color: #ffd8c8; }
-            .stat.warning .stat-value { color: #fff; }
-            .sound-toggle { border-radius: 0 0 16px 16px; color: #fff; }
-            .sound-toggle[aria-pressed="true"] { background: rgba(255,255,255,0.12); }
+            .sound-toggle .stat-value { color: #173426; }
+            .stat.warning { background: #fff0e8; }
+            .stat.warning .stat-label { color: #9f3b22; }
+            .stat.warning .stat-value { color: #d83f2c; }
+            .sound-toggle { border-radius: 0 15px 15px 0; color: #173426; }
+            .sound-toggle[aria-pressed="true"] { background: #e7f6e9; }
             #stage-wrap {
-                --stage-pad-top: 8px; --stage-pad-x: 8px; --stage-pad-bottom: 10px;
-                border-radius: 22px;
+                --stage-pad-top: 8px; --stage-pad-x: 8px; --stage-pad-bottom: 8px;
+                border: 1px solid #0c6040; border-radius: 20px;
+                box-shadow: 0 12px 28px rgba(21,66,43,0.17);
             }
             #screen-start { gap: 28px; padding: 22px 30px; }
             .start-hero {
-                width: min(48%, 410px); padding: 20px 16px;
+                width: min(48%, 480px); padding: 20px 24px;
                 border-right: 1px solid rgba(7,93,59,0.12);
             }
-            .start-layout { width: min(44%, 390px); margin-top: 0; gap: 11px; }
-            .brand { grid-template-columns: 64px auto; }
-            .brand img { width: 64px; height: 64px; }
-            h1 { font-size: 56px; }
+            .start-layout { width: min(44%, 430px); margin-top: 0; gap: 11px; }
+            .brand { grid-template-columns: 68px auto; }
+            .brand img { width: 68px; height: 68px; }
+            h1 { font-size: 62px; }
             .play-preview { margin-top: 13px; }
+            .combo-feedback { top: 16px; }
+        }
+        @media (min-width: 1200px) and (min-height: 760px) and (pointer: fine) {
+            #screen-start { gap: 42px; padding: 34px 48px; }
+            .start-hero { width: min(48%, 520px); padding: 28px 32px; }
+            .start-layout { width: min(44%, 470px); gap: 14px; }
+            .brand { grid-template-columns: 78px auto; gap: 14px; }
+            .brand img { width: 78px; height: 78px; }
+            h1 { font-size: 70px; }
+            .brand-kicker { font-size: 13px; }
+            .tagline { font-size: 15px; }
+            .play-preview { width: min(100%, 400px); padding: 14px 16px; }
+            .preview-apple { width: 54px; height: 54px; }
+            .preview-apple strong { width: 31px; height: 31px; font-size: 19px; }
+            .preview-result { font-size: 15px; }
+            .preview-result strong { font-size: 27px; }
+            .mode-btn { min-height: 50px; font-size: 12px; }
+            .apple-play { min-height: 70px; font-size: 20px; }
+            .apple-play img { width: 48px; height: 48px; }
+            .how-to { font-size: 11px; }
+            #rank-container { max-height: 164px; padding: 12px; }
+            .local-best-card { min-height: 48px; }
+            #screen-result { padding: 28px 40px; }
+            .result-title { font-size: 52px; }
+            .result-card { width: min(76%, 620px); padding: 18px 22px; }
+            #res-score { font-size: 64px; }
         }
 
         @media (orientation: portrait) and (max-width: 520px) {
@@ -688,7 +709,7 @@
     <header id="header" aria-label="게임 현황">
         <div class="hud-mark" aria-hidden="true">
             <img src="assets/apple-mascot.png" alt="">
-            <span>APPLE<br>BURST</span>
+            <span>사과 팡팡</span>
         </div>
         <div class="stat time-stat"><div class="stat-label">시간</div><div id="v-time" class="stat-value">60</div></div>
         <div class="stat right"><div class="stat-label">점수</div><div id="v-score" class="stat-value">0</div></div>
@@ -1133,12 +1154,12 @@ const Game = {
         const containerY = px(containerStyle.paddingTop) + px(containerStyle.paddingBottom);
         let scale;
         if(this.desktopLayout) {
-            const headerW = header ? header.offsetWidth : 126;
-            const gridGap = px(containerStyle.columnGap);
-            const containerW = Math.min(viewport.width * 0.96, 1180);
-            const availableW = Math.max(560, containerW - containerX - headerW - gridGap - frameX);
-            const availableH = Math.max(330, viewport.height - containerY - frameY);
-            scale = Math.min(availableW / baseW, availableH / baseH, 1.45);
+            const headerH = header ? header.offsetHeight : 68;
+            const layoutGap = px(containerStyle.rowGap);
+            const containerW = Math.min(viewport.width * 0.98, 1440);
+            const availableW = Math.max(560, containerW - containerX - frameX);
+            const availableH = Math.max(330, viewport.height - containerY - headerH - layoutGap - frameY);
+            scale = Math.min(availableW / baseW, availableH / baseH, 2.05);
         } else {
             const headerH = header ? header.offsetHeight : 50;
             const headerGap = px(getComputedStyle(header).marginBottom);
