@@ -7,9 +7,12 @@ const {
     SCORE_VERSION,
     COMBO_WINDOW_MS,
     BIG_POP_MIN_APPLES,
+    MOBILE_BOARD,
+    DESKTOP_BOARD,
     scoreForApples,
     nextCombo,
     isBigPop,
+    boardForLayout,
 } = require('../game-rules.js');
 
 test('사과는 제거한 개수만큼 1점씩 계산한다', () => {
@@ -26,6 +29,14 @@ test('잘못된 사과 개수는 점수에 반영하지 않는다', () => {
 
 test('반응형 대형 사과 게임판은 점수 버전 8을 사용한다', () => {
     assert.equal(SCORE_VERSION, 8);
+});
+
+test('모바일과 데스크톱은 화면에 맞는 보드 밀도를 사용한다', () => {
+    assert.deepEqual(MOBILE_BOARD, { rows: 12, cols: 6 });
+    assert.deepEqual(DESKTOP_BOARD, { rows: 7, cols: 14 });
+    assert.equal(boardForLayout('mobile'), MOBILE_BOARD);
+    assert.equal(boardForLayout('desktop'), DESKTOP_BOARD);
+    assert.equal(boardForLayout('unknown'), MOBILE_BOARD);
 });
 
 test('제한 시간 안의 연속 정답만 콤보로 이어진다', () => {

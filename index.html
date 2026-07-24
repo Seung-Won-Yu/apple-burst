@@ -259,7 +259,7 @@
 
         @media (min-width: 900px) and (pointer: fine) {
             #game-container {
-                width: min(98vw, 1440px); display: flex; flex-direction: column;
+                width: min(94vw, 1160px); display: flex; flex-direction: column;
                 align-items: center; gap: 12px; padding: 12px 16px;
             }
             #header {
@@ -286,7 +286,7 @@
                 --stage-pad-top: 8px; --stage-pad-x: 8px; --stage-pad-bottom: 8px;
                 border-radius: 20px;
             }
-            canvas { width: min(100%, 1344px); }
+            canvas { width: min(100%, 1082px); }
             #screen-start { flex-direction: row; justify-content: center; align-items: center; gap: 18px; padding: 18px 24px; overflow: hidden; }
             .start-hero { width: min(48%, 480px); }
             .start-layout { width: min(44%, 430px); margin-top: 0; gap: 9px; }
@@ -622,6 +622,40 @@
             .result-card { width: min(76%, 620px); padding: 18px 22px; }
             #res-score { font-size: 64px; }
         }
+        @media (min-width: 900px) and (pointer: fine) {
+            body[data-screen="start"] #game-container { gap: 0; }
+            body[data-screen="start"] #header { display: none; }
+            body[data-screen="start"] #stage-wrap {
+                --stage-pad-top: 0px;
+                --stage-pad-x: 0px;
+                --stage-pad-bottom: 0px;
+                height: min(74svh, 500px);
+                border: 1px solid rgba(7,93,59,0.18);
+                border-radius: 24px;
+                background: #f4efe3;
+                box-shadow: 0 18px 42px rgba(32,68,48,0.12);
+            }
+            body[data-screen="start"] #stage-wrap::before { display: none; }
+            body[data-screen="start"] #screen-start {
+                align-items: center; gap: 24px; padding: 24px;
+                border-radius: 23px; background: #f4efe3;
+            }
+            body[data-screen="start"] .start-hero,
+            body[data-screen="start"] .start-layout {
+                align-self: center; justify-content: center; min-height: 340px;
+                box-sizing: border-box; border: 1px solid rgba(7,93,59,0.13);
+                border-radius: 18px; box-shadow: 0 8px 18px rgba(32,68,48,0.06);
+            }
+            body[data-screen="start"] .start-hero {
+                width: min(52%, 500px); padding: 24px;
+                border-right: 1px solid rgba(7,93,59,0.13);
+                background: #fff9eb;
+            }
+            body[data-screen="start"] .start-layout {
+                width: min(43%, 430px); padding: 20px;
+                background: rgba(255,255,255,0.82);
+            }
+        }
 
         @media (orientation: portrait) and (max-width: 520px) {
             #header { margin-bottom: 8px; }
@@ -815,17 +849,18 @@ const db = (() => {
     }
 })();
 
-const MOBILE_BOARD = Object.freeze({ rows: 12, cols: 6 });
-const DESKTOP_BOARD = Object.freeze({ rows: 6, cols: 12 });
-let ROWS = MOBILE_BOARD.rows, COLS = MOBILE_BOARD.cols;
 const CELL = 52, PAD = 16, DEFAULT_TIME = 60, MAX_NICK = 12, LOW_APPLE_LIMIT = 8;
 const DEFAULT_NICK = "플레이어";
 const {
     SCORE_VERSION,
+    MOBILE_BOARD,
+    DESKTOP_BOARD,
     scoreForApples,
     nextCombo,
     isBigPop,
+    boardForLayout,
 } = window.AppleBurstRules;
+let ROWS = MOBILE_BOARD.rows, COLS = MOBILE_BOARD.cols;
 const MAX_RANK_SCORE = 999999, SAVE_COOLDOWN_MS = 8000;
 const TUTORIAL_KEY = `apple_tutorial_seen_v${SCORE_VERSION}`;
 const dpr = window.devicePixelRatio || 1;
@@ -848,6 +883,7 @@ const Game = {
 
     init() {
         this.configureBoardShape();
+        document.body.dataset.screen = "start";
         this.resizeCanvasForBoard();
         this.nick = this.cleanNick(localStorage.getItem('apple_nick') || "") || DEFAULT_NICK;
         this.soundOn = localStorage.getItem('apple_sound') === "on";
@@ -940,14 +976,33 @@ const Game = {
         return encodeURIComponent(this.cleanNick(nick).toLowerCase() || "player").slice(0, 90);
     },
 
+    getLayoutKey() {
+        return this.desktopLayout ? "desktop" : "mobile";
+    },
+
+    getBoardLabel(layout = this.getLayoutKey()) {
+        const board = boardForLayout(layout);
+        return `${board.cols}×${board.rows}`;
+    },
+
     getRankKey(mode = this.mode) {
-        return `v${SCORE_VERSION}_${mode}_${this.playerKey}`;
+        return `v${SCORE_VERSION}_${this.getLayoutKey()}_${mode}_${this.playerKey}`;
     },
 
     getModeFromRankKey(key = "") {
-        if(String(key).startsWith(`v${SCORE_VERSION}_rush_`)) return "rush";
-        if(String(key).startsWith("rush_")) return "rush";
+        const value = String(key);
+        if(value.startsWith(`v${SCORE_VERSION}_desktop_rush_`)) return "rush";
+        if(value.startsWith(`v${SCORE_VERSION}_mobile_rush_`)) return "rush";
+        if(value.startsWith(`v${SCORE_VERSION}_rush_`)) return "rush";
+        if(value.startsWith("rush_")) return "rush";
         return "classic";
+    },
+
+    getLayoutFromRankKey(key = "") {
+        const value = String(key);
+        if(value.startsWith(`v${SCORE_VERSION}_desktop_`)) return "desktop";
+        if(value.startsWith(`v${SCORE_VERSION}_mobile_`)) return "mobile";
+        return "legacy";
     },
 
     getModeLabel(mode = this.mode) {
@@ -955,7 +1010,7 @@ const Game = {
     },
 
     getBestKey(mode = this.mode) {
-        return `apple_best_v${SCORE_VERSION}_${mode}`;
+        return `apple_best_v${SCORE_VERSION}_${this.getLayoutKey()}_${mode}`;
     },
 
     getLocalBest(mode = this.mode) {
@@ -967,7 +1022,7 @@ const Game = {
     },
 
     getSaveCooldownKey(mode = this.mode) {
-        return `apple_last_save_v${SCORE_VERSION}_${mode}`;
+        return `apple_last_save_v${SCORE_VERSION}_${this.getLayoutKey()}_${mode}`;
     },
 
     validateRankSave() {
@@ -1086,7 +1141,7 @@ const Game = {
 
     configureBoardShape() {
         this.desktopLayout = this.isDesktopWide();
-        const board = this.desktopLayout ? DESKTOP_BOARD : MOBILE_BOARD;
+        const board = boardForLayout(this.desktopLayout ? "desktop" : "mobile");
         ROWS = board.rows;
         COLS = board.cols;
         document.body.dataset.layout = this.desktopLayout ? "desktop" : "mobile";
@@ -1106,11 +1161,9 @@ const Game = {
     handleViewportChange() {
         const nextDesktop = this.isDesktopWide();
         if(nextDesktop !== this.desktopLayout) {
-            if(this.grid.length) {
-                this.grid = this.grid[0].map((_, column) => this.grid.map((row) => row[column]));
-            }
+            const hadBoard = this.grid.length > 0;
             this.desktopLayout = nextDesktop;
-            const board = nextDesktop ? DESKTOP_BOARD : MOBILE_BOARD;
+            const board = boardForLayout(nextDesktop ? "desktop" : "mobile");
             ROWS = board.rows;
             COLS = board.cols;
             document.body.dataset.layout = nextDesktop ? "desktop" : "mobile";
@@ -1121,7 +1174,11 @@ const Game = {
             this.effects = [];
             this.particles = [];
             this.tutorialHint = null;
+            this.dragging = false;
             this.resizeCanvasForBoard();
+            if(hadBoard) this.buildPlayableBoard();
+            this.renderRanks(this.latestRanks);
+            if(this.active) this.showToast(`${this.getBoardLabel()} 게임판으로 다시 맞췄어요`);
         }
         this.layout();
     },
@@ -1156,10 +1213,10 @@ const Game = {
         if(this.desktopLayout) {
             const headerH = header ? header.offsetHeight : 68;
             const layoutGap = px(containerStyle.rowGap);
-            const containerW = Math.min(viewport.width * 0.98, 1440);
+            const containerW = Math.min(viewport.width * 0.94, 1160);
             const availableW = Math.max(560, containerW - containerX - frameX);
             const availableH = Math.max(330, viewport.height - containerY - headerH - layoutGap - frameY);
-            scale = Math.min(availableW / baseW, availableH / baseH, 2.05);
+            scale = Math.min(availableW / baseW, availableH / baseH, 1.65);
         } else {
             const headerH = header ? header.offsetHeight : 50;
             const headerGap = px(getComputedStyle(header).marginBottom);
@@ -1491,6 +1548,7 @@ const Game = {
             rows.push({
                 key: child.key,
                 mode: this.getModeFromRankKey(child.key),
+                layout: data.layout || this.getLayoutFromRankKey(child.key),
                 nick: this.cleanNick(data.nick) || DEFAULT_NICK,
                 score: Math.max(0, Math.round(score)),
                 updatedAt: Number(data.updatedAt) || 0,
@@ -1508,11 +1566,12 @@ const Game = {
         const rankTitle = document.getElementById('rank-title');
         const rankTabs = document.getElementById('rank-tabs');
         const modeLabel = this.getModeLabel();
+        const boardLabel = this.getBoardLabel();
 
         if(!ONLINE_RANKING_ENABLED) {
             if(rankTitle) rankTitle.textContent = "내 기기 최고 기록";
             rankTabs?.classList.add('hidden');
-            meta.innerText = `${modeLabel} · 온라인 연결 없이 이 기기에 저장`;
+            meta.innerText = `${modeLabel} · ${boardLabel} · 이 기기에 저장`;
             myRankBox.classList.add('hidden');
             myRankBox.innerHTML = "";
             list.innerHTML = myBest
@@ -1525,7 +1584,7 @@ const Game = {
         rankTabs?.classList.remove('hidden');
         const { start, end, label } = this.todayRange();
         const modeRows = rows
-            .filter(row => row.mode === this.mode)
+            .filter(row => row.mode === this.mode && row.layout === this.getLayoutKey())
             .slice()
             .sort((a, b) => b.score - a.score);
         const scopedRows = (this.rankMode === "today"
@@ -1579,6 +1638,7 @@ const Game = {
 
     start() {
         const audioReady = this.primeAudio();
+        document.body.dataset.screen = "game";
         this.enterFullscreen();
         const nickInput = document.getElementById('nick-input');
         this.nick = this.cleanNick(nickInput.value) || DEFAULT_NICK;
@@ -1618,6 +1678,7 @@ const Game = {
     end() {
         if(!this.active) return;
         this.active = false; clearInterval(this.timer);
+        document.body.dataset.screen = "result";
         this.hideComboFeedback();
         this.updateHud();
         const myBest = this.getLocalBest();
@@ -1628,7 +1689,7 @@ const Game = {
         document.getElementById('res-title').innerText = isNewBest ? "새 기록!" : "시간 끝!";
         document.getElementById('res-score').innerText = this.score.toLocaleString();
         const modeLabel = this.getModeLabel();
-        document.getElementById('res-detail').innerText = `${modeLabel} · 기기 최고 ${Math.max(myBest, this.score).toLocaleString()}점`;
+        document.getElementById('res-detail').innerText = `${modeLabel} · ${this.getBoardLabel()} · 기기 최고 ${Math.max(myBest, this.score).toLocaleString()}점`;
         document.getElementById('res-apples').innerText = this.cleared.toLocaleString();
         document.getElementById('res-combo').innerText = this.maxCombo.toLocaleString();
         document.getElementById('res-big-pops').innerText = `${this.bigPops.toLocaleString()}회`;
@@ -1671,6 +1732,7 @@ const Game = {
             nick: this.nick,
             score: Math.round(this.score),
             version: SCORE_VERSION,
+            layout: this.getLayoutKey(),
             updatedAt: firebase.database.ServerValue.TIMESTAMP,
         };
         localStorage.setItem(this.getSaveCooldownKey(), Date.now());
@@ -1692,7 +1754,7 @@ const Game = {
 
     share() {
         const modeLabel = this.getModeLabel();
-        const text = `${this.nick}님이 사과 팡팡 ${modeLabel}에서 ${this.score.toLocaleString()}점을 달성! 내 점수 이겨봐.`;
+        const text = `${this.nick}님이 사과 팡팡 ${modeLabel} ${this.getBoardLabel()}에서 ${this.score.toLocaleString()}점을 달성! 내 점수 이겨봐.`;
         const shareUrl = this.buildShareUrl();
         const message = `${text} ${shareUrl}`;
         if(navigator.share) {
