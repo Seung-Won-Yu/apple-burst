@@ -93,7 +93,7 @@
         }
         .time-stat.warning::after { background: var(--apple); }
         #v-score.score-pop { animation: score-pop 0.24s ease-out; color: var(--apple); }
-        @keyframes score-pop { 0% { transform: scale(1); } 45% { transform: scale(1.24); } 100% { transform: scale(1); } }
+        @keyframes score-pop { 0% { transform: scale(1); } 45% { transform: scale(1.12); } 100% { transform: scale(1); } }
         .sound-toggle {
             display: grid; grid-template-rows: auto auto; align-content: center; justify-items: center;
             min-height: 50px; min-width: 0; padding: 3px 7px; border: 0; background: transparent;
@@ -120,8 +120,8 @@
         #stage-wrap.hit { animation: hit-pulse 0.28s ease-out; }
         #stage-wrap.miss { animation: miss-shake 0.18s ease-out; }
         canvas { display: block; border-radius: 3px; cursor: crosshair; width: min(100%, 430px); max-width: 100%; max-height: none; height: auto; touch-action: none; box-shadow: inset 0 0 0 2px rgba(0,120,50,0.18), 0 1px 0 rgba(255,255,255,0.45); }
-        @keyframes hit-pulse { 0% { transform: scale(1); } 45% { transform: scale(1.008); } 100% { transform: scale(1); } }
-        @keyframes miss-shake { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-4px); } 65% { transform: translateX(4px); } }
+        @keyframes hit-pulse { 0% { transform: scale(1); } 45% { transform: scale(1.003); } 100% { transform: scale(1); } }
+        @keyframes miss-shake { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-1.5px); } 65% { transform: translateX(1.5px); } }
 
         /* 오버레이 */
         .overlay {
@@ -139,7 +139,7 @@
         }
         .overlay:not(.hidden) { animation: overlay-in 0.18s ease-out; }
         .hidden { display: none !important; }
-        @keyframes overlay-in { from { opacity: 0; transform: scale(0.992); } to { opacity: 1; transform: scale(1); } }
+        @keyframes overlay-in { from { opacity: 0; } to { opacity: 1; } }
         #screen-start { flex-direction: column; gap: 0; padding: 18px; }
 
         .start-hero { width: min(100%, 360px); display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; }
@@ -224,7 +224,7 @@
         .result-card { width: min(88%, 460px); padding: 18px; border-radius: var(--radius-md); background: #fff; border: 2px solid var(--line); box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); margin-bottom: 12px; }
         .result-label { color: var(--muted); font-size: 11px; letter-spacing: 0; }
         #res-score { font-size: clamp(42px, 8vw, 68px); line-height: 1; margin: 8px 0 12px; color: var(--apple); text-shadow: 0 3px 0 rgba(244,182,58,0.24); }
-        .result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+        .result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
         .result-chip { border-radius: 8px; background: rgba(47,157,103,0.08); padding: 9px 7px; }
         .result-chip span { display: block; color: var(--muted); font-size: 9px; }
         .result-chip strong { display: block; margin-top: 3px; font-size: 14px; color: var(--ink); }
@@ -362,48 +362,36 @@
         /* Premium orchard arcade art pass */
         :root {
             --bg: #f3efe3;
-            --frame: #0f9a58;
-            --frame-dark: #075d3b;
-            --frame-light: #54dc8c;
+            --frame: #168b53;
+            --frame-dark: #0c6040;
+            --frame-light: #61c98c;
             --board: #fffaf0;
             --board-alt: #eef7e7;
             --ink: #173426;
             --muted: #617267;
-            --apple: #f0442f;
-            --apple-dark: #a9231a;
-            --leaf: #138447;
-            --accent: #f58a24;
+            --apple: #e9513b;
+            --apple-dark: #a83025;
+            --leaf: #287e4c;
+            --accent: #dd832d;
             --gold: #f6c84c;
             --line: rgba(7, 93, 59, 0.18);
             --surface: rgba(255, 253, 247, 0.96);
-            --shadow: 0 7px 0 #075d3b, 0 17px 34px rgba(21, 66, 43, 0.22);
+            --shadow: 0 10px 24px rgba(21, 66, 43, 0.18);
             --radius-sm: 10px;
             --radius-md: 16px;
         }
-        body {
-            background:
-                radial-gradient(circle at 12% 14%, rgba(246, 200, 76, 0.19) 0 5px, transparent 6px),
-                radial-gradient(circle at 88% 78%, rgba(15, 154, 88, 0.13) 0 7px, transparent 8px),
-                radial-gradient(circle at 50% 105%, rgba(15, 154, 88, 0.10), transparent 38%),
-                linear-gradient(135deg, rgba(255,255,255,0.6), rgba(240,235,220,0.34)),
-                var(--bg);
-            background-size: 180px 180px, 220px 220px, auto, auto, auto;
-        }
+        body { background: linear-gradient(180deg, #f8f4ea, #eeeadd); }
         body::before,
         body::after {
-            content: ""; position: fixed; z-index: -1; pointer-events: none;
-            width: 250px; height: 250px; border-radius: 50%;
-            filter: blur(2px); opacity: 0.55;
+            display: none;
         }
-        body::before { left: -120px; top: -120px; background: rgba(246, 200, 76, 0.16); }
-        body::after { right: -130px; bottom: -130px; background: rgba(15, 154, 88, 0.13); }
         #game-container { isolation: isolate; }
 
         #header {
             background: var(--surface);
             border: 1px solid rgba(7, 93, 59, 0.22);
             border-radius: 16px;
-            box-shadow: 0 5px 16px rgba(32, 68, 48, 0.12), inset 0 1px 0 #fff;
+            box-shadow: 0 5px 14px rgba(32, 68, 48, 0.09);
         }
         .stat { min-height: 54px; padding: 4px 8px; }
         .stat-label {
@@ -422,42 +410,34 @@
         }
 
         #stage-wrap {
-            background: linear-gradient(145deg, #20bd6c, #0a854c);
-            border: 2px solid #075d3b;
+            --stage-pad-bottom: 8px;
+            background: #168b53;
+            border: 2px solid #0c6040;
             border-radius: 20px;
-            box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.62);
+            box-shadow: var(--shadow);
         }
         #stage-wrap::before {
             content: ""; position: absolute; z-index: 2; pointer-events: none;
             left: 18px; right: 18px; top: 2px; height: 2px;
-            border-radius: 999px; background: rgba(255,255,255,0.52);
+            border-radius: 999px; background: rgba(255,255,255,0.28);
         }
         #stage-wrap::after {
-            background: rgba(255,255,255,0.48);
-            box-shadow: inset 0 1px 1px rgba(255,255,255,0.8), 0 1px 0 rgba(3,73,38,0.35);
+            display: none;
         }
         canvas {
             border-radius: 11px;
-            box-shadow: inset 0 0 0 1px rgba(7,93,59,0.13), 0 2px 5px rgba(3,65,35,0.25);
+            box-shadow: inset 0 0 0 1px rgba(7,93,59,0.11);
         }
 
         .overlay {
             overflow: hidden;
             border-radius: 11px;
-            background:
-                radial-gradient(circle at 8% 12%, rgba(246,200,76,0.16) 0 3px, transparent 4px),
-                radial-gradient(circle at 92% 84%, rgba(15,154,88,0.12) 0 4px, transparent 5px),
-                linear-gradient(145deg, rgba(255,255,255,0.76), transparent 45%),
-                #fff9ec;
-            background-size: 130px 130px, 170px 170px, auto, auto;
+            background: #fffaf0;
         }
         .overlay::before,
         .overlay::after {
-            content: ""; position: absolute; z-index: 0; pointer-events: none;
-            width: 150px; height: 150px; border: 22px solid rgba(15,154,88,0.045); border-radius: 50%;
+            display: none;
         }
-        .overlay::before { left: -100px; top: -90px; }
-        .overlay::after { right: -105px; bottom: -100px; border-color: rgba(246,200,76,0.08); }
         .start-hero,
         .start-layout,
         #screen-result > * { position: relative; z-index: 1; }
@@ -467,15 +447,15 @@
         }
         .brand img {
             width: 56px; height: 56px;
-            filter: drop-shadow(0 5px 0 rgba(99,34,19,0.18)) drop-shadow(0 9px 12px rgba(116,40,23,0.12));
+            filter: drop-shadow(0 4px 5px rgba(99,34,19,0.15));
         }
         h1 {
-            color: #27bd58;
+            color: #2aa85b;
             font-size: clamp(38px, 7vw, 48px);
             letter-spacing: -0.055em;
             text-shadow:
                 -2px 0 #fff, 0 2px #fff, 2px 0 #fff, 0 -2px #fff,
-                0 5px 0 rgba(7,93,59,0.18);
+                0 3px 0 rgba(7,93,59,0.12);
         }
         .brand-kicker {
             width: fit-content; margin-bottom: 5px; padding: 4px 8px;
@@ -489,7 +469,7 @@
             margin-top: 11px; padding: 10px 12px;
             border: 1px solid rgba(7,93,59,0.2); border-radius: 16px;
             background: rgba(255,255,255,0.9);
-            box-shadow: 0 5px 0 rgba(7,93,59,0.08), 0 10px 22px rgba(32,68,48,0.08);
+            box-shadow: 0 6px 16px rgba(32,68,48,0.08);
         }
         .preview-selection {
             gap: 7px; padding: 7px 10px;
@@ -500,9 +480,9 @@
             border: 1px solid rgba(39,116,255,0.2); color: #2859a7;
         }
         .preview-apple {
-            width: 46px; height: 46px; border: 2px solid #a9231a;
-            background: radial-gradient(circle at 28% 18%, #ffae79 0 9%, #f85c3d 25%, #ef3d2e 58%, #b8241b 100%);
-            box-shadow: inset -4px -5px 0 rgba(116,24,18,0.12), 0 4px 0 rgba(111,33,19,0.18);
+            width: 46px; height: 46px; border: 2px solid #a83025;
+            background: radial-gradient(circle at 28% 18%, #f8a484 0 9%, #e86c55 25%, #dc4a3c 58%, #9e352b 100%);
+            box-shadow: inset -3px -4px 0 rgba(116,24,18,0.08), 0 3px 5px rgba(111,33,19,0.13);
         }
         .preview-apple strong {
             width: 26px; height: 26px;
@@ -523,33 +503,28 @@
         }
         .mode-btn.active {
             border-color: rgba(7,93,59,0.18); background: #fffdf7; color: #087445;
-            box-shadow: 0 3px 8px rgba(20,75,47,0.12), inset 0 1px 0 #fff;
+            box-shadow: 0 2px 6px rgba(20,75,47,0.09);
         }
         .apple-play {
             min-height: 60px; border: 1px solid #a9231a; border-radius: 15px;
-            background: linear-gradient(180deg, #ff6b4c, #ed3f2c);
-            box-shadow: 0 6px 0 #a9231a, 0 11px 20px rgba(150,40,25,0.18);
+            background: #e9513b;
+            box-shadow: 0 5px 12px rgba(150,40,25,0.2);
             overflow: hidden; box-sizing: border-box;
         }
         .apple-play::before {
             content: ""; position: absolute; left: 10%; right: 10%; top: 2px; height: 2px;
             border-radius: 999px; background: rgba(255,255,255,0.56);
         }
-        .apple-play::after {
-            content: ""; position: absolute; top: -20%; left: -32%; width: 24%; height: 140%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
-            transform: skewX(-20deg); transition: left 320ms ease;
-        }
-        .apple-play:hover::after { left: 112%; }
-        .apple-play:hover { transform: translateY(-2px); filter: saturate(1.04); }
-        .apple-play:active { transform: translateY(4px); box-shadow: 0 2px 0 #a9231a; }
+        .apple-play::after { display: none; }
+        .apple-play:hover { transform: translateY(-1px); }
+        .apple-play:active { transform: translateY(1px); box-shadow: 0 2px 6px rgba(150,40,25,0.18); }
         .apple-play img { width: 42px; height: 42px; }
         .how-to { color: #68776e; font-size: 10px; }
 
         #rank-container {
             border: 1px solid rgba(7,93,59,0.15); border-radius: 15px;
             background: rgba(247,244,233,0.86);
-            box-shadow: inset 0 1px 0 #fff;
+            box-shadow: none;
         }
         .rank-title { color: #087445; }
         .rank-meta { color: #6d796f; }
@@ -559,15 +534,33 @@
 
         .result-title {
             color: #1c9f50; letter-spacing: -0.04em;
-            text-shadow: 0 4px 0 rgba(7,93,59,0.12);
+            text-shadow: 0 2px 0 rgba(7,93,59,0.08);
         }
         .result-card {
             border: 1px solid rgba(7,93,59,0.2); border-radius: 18px;
             background: rgba(255,255,255,0.94);
-            box-shadow: 0 7px 0 rgba(7,93,59,0.08), 0 14px 26px rgba(32,68,48,0.1);
+            box-shadow: 0 8px 20px rgba(32,68,48,0.09);
         }
         .result-chip { border: 1px solid rgba(7,93,59,0.09); border-radius: 11px; background: #f3f8ee; }
         .btn { border-radius: 12px; }
+        .combo-feedback {
+            position: absolute; z-index: 60; top: 18px; left: 50%;
+            max-width: calc(100% - 28px); padding: 7px 13px;
+            border: 1px solid rgba(155, 99, 15, 0.24); border-radius: 999px;
+            background: rgba(255, 250, 231, 0.96); color: #9b630f;
+            box-shadow: 0 4px 12px rgba(76, 59, 25, 0.1);
+            font-size: 13px; font-weight: 1000; letter-spacing: 0.02em;
+            line-height: 1.1; text-align: center; white-space: nowrap;
+            opacity: 0; transform: translate(-50%, -4px);
+            pointer-events: none;
+            transition: opacity 0.14s ease-out, transform 0.14s ease-out;
+        }
+        .combo-feedback.show { opacity: 1; transform: translate(-50%, 0); }
+        .combo-feedback.big {
+            border-color: rgba(202, 76, 37, 0.25);
+            background: rgba(255, 246, 222, 0.97);
+            color: #c54b25;
+        }
 
         @media (min-width: 900px) and (pointer: fine) {
             #game-container { grid-template-columns: 132px minmax(0, 1fr); gap: 18px; }
@@ -575,7 +568,7 @@
                 width: 132px;
                 overflow: hidden; border: 2px solid #075d3b; border-radius: 18px;
                 background: #087445;
-                box-shadow: 0 7px 0 #064f33, 0 16px 28px rgba(18,63,40,0.2);
+                box-shadow: 0 10px 24px rgba(18,63,40,0.16);
             }
             .hud-mark {
                 color: #075d3b; border-bottom-color: rgba(7,93,59,0.16);
@@ -594,7 +587,7 @@
             .sound-toggle { border-radius: 0 0 16px 16px; color: #fff; }
             .sound-toggle[aria-pressed="true"] { background: rgba(255,255,255,0.12); }
             #stage-wrap {
-                --stage-pad-top: 8px; --stage-pad-x: 8px; --stage-pad-bottom: 18px;
+                --stage-pad-top: 8px; --stage-pad-x: 8px; --stage-pad-bottom: 10px;
                 border-radius: 22px;
             }
             #screen-start { gap: 28px; padding: 22px 30px; }
@@ -612,7 +605,7 @@
         @media (orientation: portrait) and (max-width: 520px) {
             #header { margin-bottom: 8px; }
             #stage-wrap {
-                --stage-pad-top: 7px; --stage-pad-x: 5px; --stage-pad-bottom: 18px;
+                --stage-pad-top: 7px; --stage-pad-x: 5px; --stage-pad-bottom: 9px;
                 border-radius: 18px;
             }
             .overlay { padding: 15px 13px; }
@@ -621,6 +614,7 @@
             h1 { font-size: 42px; }
             .start-layout { margin-top: 12px; }
             #rank-container { max-height: min(24svh, 174px); }
+            .combo-feedback { top: 11px; padding: 6px 11px; font-size: 12px; }
         }
         @media (orientation: portrait) and (max-width: 520px) and (min-height: 700px) {
             #screen-start { justify-content: center; padding-top: 24px; padding-bottom: 24px; }
@@ -649,7 +643,7 @@
             #stage-wrap {
                 --stage-pad-top: 5px;
                 --stage-pad-x: 4px;
-                --stage-pad-bottom: 14px;
+                --stage-pad-bottom: 7px;
             }
             #screen-start { justify-content: center; padding: 6px; }
             .brand { grid-template-columns: 36px auto; gap: 6px; margin-bottom: 2px; }
@@ -706,6 +700,7 @@
 
     <div id="stage-wrap">
         <canvas id="stage" aria-label="사과 게임판. 드래그해서 합계 10을 만드세요."></canvas>
+        <div id="combo-feedback" class="combo-feedback" role="status" aria-live="polite"></div>
 
         <div id="screen-start" class="overlay">
             <div class="start-hero">
@@ -768,9 +763,10 @@
                 <div id="res-score">0</div>
                 <div id="res-detail" class="result-detail"></div>
                 <div class="result-grid">
-                    <div class="result-chip"><span>모드</span><strong id="res-mode">-</strong></div>
-                    <div class="result-chip"><span>플레이 시간</span><strong id="res-time">-</strong></div>
                     <div class="result-chip"><span>터뜨린 사과</span><strong id="res-apples">0</strong></div>
+                    <div class="result-chip"><span>최고 콤보</span><strong id="res-combo">0</strong></div>
+                    <div class="result-chip"><span>BIG POP</span><strong id="res-big-pops">0회</strong></div>
+                    <div class="result-chip"><span>한 번 최대</span><strong id="res-biggest-pop">0개</strong></div>
                 </div>
             </div>
             <div id="save-state" class="save-state" role="status" aria-live="polite"></div>
@@ -803,7 +799,12 @@ const DESKTOP_BOARD = Object.freeze({ rows: 6, cols: 12 });
 let ROWS = MOBILE_BOARD.rows, COLS = MOBILE_BOARD.cols;
 const CELL = 52, PAD = 16, DEFAULT_TIME = 60, MAX_NICK = 12, LOW_APPLE_LIMIT = 8;
 const DEFAULT_NICK = "플레이어";
-const { SCORE_VERSION, scoreForApples } = window.AppleBurstRules;
+const {
+    SCORE_VERSION,
+    scoreForApples,
+    nextCombo,
+    isBigPop,
+} = window.AppleBurstRules;
 const MAX_RANK_SCORE = 999999, SAVE_COOLDOWN_MS = 8000;
 const TUTORIAL_KEY = `apple_tutorial_seen_v${SCORE_VERSION}`;
 const dpr = window.devicePixelRatio || 1;
@@ -814,11 +815,12 @@ const Game = {
     active: false, dragging: false,
     score: 0, time: DEFAULT_TIME, mode: "rush", modeTime: DEFAULT_TIME,
     cleared: 0, reshuffles: 0,
+    combo: 0, maxCombo: 0, lastHitAt: 0, bigPops: 0, biggestPop: 0,
     playStartedAt: 0, roundEndsAt: 0, scoreSaved: false,
     nick: DEFAULT_NICK, playerKey: "player", latestRanks: [], rankMode: "all", rankFallbackActive: false, composingNick: false,
     grid: [], effects: [], particles: [],
     tutorialHint: null, audioCtx: null, audioMaster: null, audioEnabled: false, soundOn: false,
-    toastTimer: null,
+    toastTimer: null, comboFeedbackTimer: null,
     desktopLayout: false,
     pointerType: "mouse",
     mStart: {x:0, y:0}, mCurrent: {x:0, y:0},
@@ -1269,7 +1271,8 @@ const Game = {
             osc.stop(startAt + duration + 0.02);
         };
 
-        const hitPitch = 540 + Math.min(7, Number(detail.points) || 1) * 24;
+        const comboLift = Math.min(5, Math.max(0, (Number(detail.combo) || 1) - 1)) * 14;
+        const hitPitch = 520 + Math.min(7, Number(detail.points) || 1) * 22 + comboLift;
         const cues = {
             ready: [
                 { from: 620, to: 720, duration: 0.07, volume: 0.022, wave: "triangle" },
@@ -1562,7 +1565,10 @@ const Game = {
         nickInput.value = this.nick === DEFAULT_NICK ? "" : this.nick;
         localStorage.setItem('apple_nick', this.nick);
         this.buildPlayableBoard();
-        this.score = 0; this.time = this.modeTime; this.cleared = 0; this.reshuffles = 0; this.effects = []; this.particles = []; this.active = true;
+        this.score = 0; this.time = this.modeTime; this.cleared = 0; this.reshuffles = 0;
+        this.combo = 0; this.maxCombo = 0; this.lastHitAt = 0; this.bigPops = 0; this.biggestPop = 0;
+        this.effects = []; this.particles = []; this.active = true;
+        this.hideComboFeedback();
         this.maybeShowTutorialHint();
         this.playStartedAt = Date.now();
         this.roundEndsAt = this.playStartedAt + this.modeTime * 1000;
@@ -1591,6 +1597,7 @@ const Game = {
     end() {
         if(!this.active) return;
         this.active = false; clearInterval(this.timer);
+        this.hideComboFeedback();
         this.updateHud();
         const myBest = this.getLocalBest();
         const isNewBest = this.score > myBest;
@@ -1600,10 +1607,11 @@ const Game = {
         document.getElementById('res-title').innerText = isNewBest ? "새 기록!" : "시간 끝!";
         document.getElementById('res-score').innerText = this.score.toLocaleString();
         const modeLabel = this.getModeLabel();
-        document.getElementById('res-detail').innerText = `${this.nick} · 최고 ${Math.max(myBest, this.score).toLocaleString()}점`;
-        document.getElementById('res-mode').innerText = modeLabel;
-        document.getElementById('res-time').innerText = `${this.modeTime}초`;
+        document.getElementById('res-detail').innerText = `${modeLabel} · 기기 최고 ${Math.max(myBest, this.score).toLocaleString()}점`;
         document.getElementById('res-apples').innerText = this.cleared.toLocaleString();
+        document.getElementById('res-combo').innerText = this.maxCombo.toLocaleString();
+        document.getElementById('res-big-pops').innerText = `${this.bigPops.toLocaleString()}회`;
+        document.getElementById('res-biggest-pop').innerText = `${this.biggestPop.toLocaleString()}개`;
         this.saveScore();
         const resultScreen = document.getElementById('screen-result');
         resultScreen.classList.remove('hidden');
@@ -1680,12 +1688,26 @@ const Game = {
     check() {
         const sel = this.getSel();
         if(sel.sum === 10 && sel.items.length) {
+            const now = Date.now();
             const points = scoreForApples(sel.items.length);
+            const bigPop = isBigPop(sel.items.length);
+            this.combo = nextCombo(this.combo, this.lastHitAt, now);
+            this.lastHitAt = now;
+            this.maxCombo = Math.max(this.maxCombo, this.combo);
+            this.biggestPop = Math.max(this.biggestPop, sel.items.length);
+            if(bigPop) this.bigPops += 1;
             this.score += points;
             this.cleared += sel.items.length;
             sel.items.forEach(p => this.grid[p.r][p.c].removed = true);
             this.spawnEffect(`+${points}`, sel.center.x, sel.center.y, '#2477ff');
-            this.playSound("hit", { points });
+            if(bigPop || this.combo >= 2) {
+                const feedback = [
+                    bigPop ? "BIG POP" : "",
+                    this.combo >= 2 ? `${this.combo} COMBO` : "",
+                ].filter(Boolean).join(" · ");
+                this.showComboFeedback(feedback, bigPop ? "big" : "");
+            }
+            this.playSound("hit", { points, combo: this.combo });
             this.spawnBurst(sel.center.x, sel.center.y);
             this.flashBoard('hit');
             this.pulseScore();
@@ -1693,6 +1715,9 @@ const Game = {
             setTimeout(() => this.ensureBoard(), 320);
         } else {
             if(sel.items.length) {
+                this.combo = 0;
+                this.lastHitAt = 0;
+                this.hideComboFeedback();
                 this.flashBoard('miss');
                 this.haptic("miss");
                 this.playSound("miss");
@@ -1700,6 +1725,26 @@ const Game = {
             this.ensureBoard();
         }
         this.updateHud();
+    },
+
+    showComboFeedback(message, tone = "") {
+        const feedback = document.getElementById('combo-feedback');
+        if(!feedback || !message) return;
+        clearTimeout(this.comboFeedbackTimer);
+        feedback.textContent = message;
+        feedback.className = `combo-feedback show ${tone}`.trim();
+        this.comboFeedbackTimer = setTimeout(() => {
+            feedback.classList.remove('show');
+        }, 800);
+    },
+
+    hideComboFeedback() {
+        clearTimeout(this.comboFeedbackTimer);
+        this.comboFeedbackTimer = null;
+        const feedback = document.getElementById('combo-feedback');
+        if(!feedback) return;
+        feedback.className = 'combo-feedback';
+        feedback.textContent = "";
     },
 
     getSel() {
@@ -1727,17 +1772,17 @@ const Game = {
 
     spawnBurst(x, y) {
         const colors = ['#f04d3f', '#f4b63a', '#2f9d67'];
-        const count = 12;
+        const count = 8;
         for(let i = 0; i < count; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const speed = 1.8 + Math.random() * 2.8;
+            const speed = 1.3 + Math.random() * 2;
             this.particles.push({
                 x, y,
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed - 0.6,
                 color: colors[i % colors.length],
-                life: 28 + Math.random() * 18,
-                size: 2 + Math.random() * 3,
+                life: 24 + Math.random() * 14,
+                size: 2 + Math.random() * 2,
             });
         }
     },
@@ -1757,12 +1802,12 @@ const Game = {
         };
 
         ctx.save();
-        const appleScale = 1.1 * (selected ? 1.07 : 1);
+        const appleScale = 1.1 * (selected ? 1.03 : 1);
         ctx.scale(appleScale, appleScale);
 
         if(selected) {
             const halo = ctx.createRadialGradient(0, 2, 9, 0, 2, 28);
-            halo.addColorStop(0, 'rgba(255, 229, 116, 0.5)');
+            halo.addColorStop(0, 'rgba(255, 229, 116, 0.32)');
             halo.addColorStop(1, 'rgba(255, 229, 116, 0)');
             ctx.fillStyle = halo;
             ctx.beginPath();
@@ -1770,7 +1815,7 @@ const Game = {
             ctx.fill();
         }
 
-        ctx.fillStyle = 'rgba(73, 43, 20, 0.2)';
+        ctx.fillStyle = 'rgba(73, 43, 20, 0.14)';
         ctx.beginPath();
         ctx.ellipse(0, 18, 16, 4.5, 0, 0, Math.PI * 2);
         ctx.fill();
@@ -1792,14 +1837,14 @@ const Game = {
         ctx.stroke();
 
         const appleFill = ctx.createRadialGradient(-8, -11, 4, 3, 4, 22);
-        appleFill.addColorStop(0, '#ffad7a');
-        appleFill.addColorStop(0.18, '#fb6848');
-        appleFill.addColorStop(0.58, '#ed3f2d');
-        appleFill.addColorStop(1, '#a9231a');
+        appleFill.addColorStop(0, '#ffb08a');
+        appleFill.addColorStop(0.18, '#f46f57');
+        appleFill.addColorStop(0.58, '#dd4a3b');
+        appleFill.addColorStop(1, '#9e322a');
 
-        ctx.shadowColor = 'rgba(92, 30, 12, 0.3)';
-        ctx.shadowBlur = 3;
-        ctx.shadowOffsetY = 4;
+        ctx.shadowColor = 'rgba(92, 30, 12, 0.18)';
+        ctx.shadowBlur = 1.5;
+        ctx.shadowOffsetY = 2.5;
         drawBodyPath();
         ctx.fillStyle = appleFill;
         ctx.fill();
@@ -1810,12 +1855,12 @@ const Game = {
         drawBodyPath();
         ctx.stroke();
 
-        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        ctx.fillStyle = 'rgba(255,255,255,0.56)';
         ctx.beginPath();
         ctx.ellipse(-8.5, -9.5, 6.5, 3.2, -0.58, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = 'rgba(255,255,255,0.18)';
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
         ctx.beginPath();
         ctx.ellipse(7, 1, 3.5, 9, -0.2, 0, Math.PI * 2);
         ctx.fill();
@@ -1937,11 +1982,11 @@ const Game = {
         this.ctx.fillRect(0, 0, boardW, boardH);
         for(let r = 0; r < ROWS; r++) {
             for(let c = 0; c < COLS; c++) {
-                this.ctx.fillStyle = (r + c) % 2 ? '#fffaf0' : '#eef7e7';
+                this.ctx.fillStyle = (r + c) % 2 ? '#fffaf0' : '#f4f8ee';
                 this.ctx.fillRect(PAD + c * CELL, PAD + r * CELL, CELL, CELL);
             }
         }
-        this.ctx.strokeStyle = 'rgba(7, 93, 59, 0.075)';
+        this.ctx.strokeStyle = 'rgba(7, 93, 59, 0.05)';
         this.ctx.lineWidth = 1;
         for(let c = 0; c <= COLS; c++) {
             const x = PAD + c * CELL;

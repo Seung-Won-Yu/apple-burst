@@ -3,7 +3,14 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { SCORE_VERSION, scoreForApples } = require('../game-rules.js');
+const {
+    SCORE_VERSION,
+    COMBO_WINDOW_MS,
+    BIG_POP_MIN_APPLES,
+    scoreForApples,
+    nextCombo,
+    isBigPop,
+} = require('../game-rules.js');
 
 test('사과는 제거한 개수만큼 1점씩 계산한다', () => {
     assert.equal(scoreForApples(1), 1);
@@ -19,6 +26,21 @@ test('잘못된 사과 개수는 점수에 반영하지 않는다', () => {
 
 test('반응형 대형 사과 게임판은 점수 버전 8을 사용한다', () => {
     assert.equal(SCORE_VERSION, 8);
+});
+
+test('제한 시간 안의 연속 정답만 콤보로 이어진다', () => {
+    assert.equal(COMBO_WINDOW_MS, 2800);
+    assert.equal(nextCombo(1, 1000, 1000 + COMBO_WINDOW_MS), 2);
+    assert.equal(nextCombo(4, 1000, 1000 + COMBO_WINDOW_MS + 1), 1);
+    assert.equal(nextCombo(3, Number.NaN, 2000), 1);
+});
+
+test('사과 3개 이상 제거하면 BIG POP으로 판정한다', () => {
+    assert.equal(BIG_POP_MIN_APPLES, 3);
+    assert.equal(isBigPop(2), false);
+    assert.equal(isBigPop(3), true);
+    assert.equal(isBigPop(6), true);
+    assert.equal(isBigPop(Number.NaN), false);
 });
 
 test('공개 게임은 행사 전용 문구 없이 하나의 기본 주소를 사용한다', () => {
